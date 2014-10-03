@@ -70,7 +70,7 @@ new UrImage({
 ## Contributing
 yoourJS is a young project. So, for the moment, you can contact the creator at [social@flaviencollomb.fr](mailto:social@flaviencollomb.fr) if you want to help him.
 
-## Creators
+## Creator
 **Flavien Collomb**
 
 - <https://twitter.com/FlavienCollomb>
