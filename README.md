@@ -5,7 +5,7 @@ yoourJS is free and open source full object JavaScript library, created by a fre
 To get started, check out <http://www.yoourjs.com>!
 
 ## Quick start
-[Download the latest release here](http://www.yoourjs.com/yoour.js).
+[Download the latest release here](http://www.yoourjs.com/lib/js/yoourJS/yoour.js).
 
 ### What's included
 ```
