@@ -5,7 +5,8 @@ yoourJS is free and open source full object JavaScript library, created by a fre
 To get started, check out <http://www.yoourjs.com>!
 
 ## Quick start
-[Download the latest release here](http://www.yoourjs.com/lib/js/yoourJS/yoour.js).
+[Download the latest release here](http://www.yoourjs.com/yoour.js).
+[Download the latest minified release here](http://www.yoourjs.com/yoour-min.js).
 
 ### What's included
 ```
@@ -19,7 +20,7 @@ All objects are concatened in final release.
 Have a bug or a feature request? [Please open a new issue](https://github.com/FlavienCollomb/yoourJS/issues/new).
 
 ## Documentation
-yoourJS's documentation is under construction.
+yoourJS's documentation is [here](http://www.yoourjs.com/api).
 
 ## First steps
 Encapsulate HTMLElement html and body
@@ -70,7 +71,7 @@ new UrImage({
 ## Contributing
 yoourJS is a young project. So, for the moment, you can contact the creator at [social@flaviencollomb.fr](mailto:social@flaviencollomb.fr) if you want to help him.
 
-## Creator
+## Creators
 **Flavien Collomb**
 
 - <https://twitter.com/FlavienCollomb>
