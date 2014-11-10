@@ -1,26 +1,58 @@
 /**
  * The UrForm object is used to construct form
+ * @class UrForm
+ * @extends UrWidget
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {string}         [settings.html]
- *      @param {string}         [settings.method]
- *      @param {string}         [settings.action]
- *      @param {string}         [settings.enctype]
+ *      @param {String}         [settings.name] UrForm name
+ *      @param {UrWidget}       [settings.parent] UrForm's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrForm
+ *      @param {String}         [settings.className] HTML attribute "class" of UrForm
+ *      @param {Object|UrStyle} [settings.style] Style of UrForm
+ *      @param {String}         [settings.html] HTML content of UrForm
+ *      @param {String}         [settings.method] Method of UrForm
+ *      @param {String}         [settings.action] Action of UrForm
+ *      @param {String}         [settings.enctype] Enctype of UrForm
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var form = new UrForm({
+ *          "parent":body,
+ *          "method":"post",
+ *          "action":"test.php",
+ *          "style":{"height":"250px","background":"black"}
+ *      });
+ *      var input1 = new UrInputText({"name":"input1"});
+ *      form.add(input1);
  * @constructor
  */
 var UrForm = function(settings){
     if(settings == undefined) settings = {};
     settings.element = document.createElement("form");
-
-    /**@type string*/this.method;
-    /**@type string*/this.action;
-    /**@type string*/this.enctype;
-
-    /**@type Array<UrDom>*/ this.formElement = {};
+    /**
+     * @property method
+     * @type String
+     * @description Method of UrForm
+     */
+    this.method;
+    /**
+     * @property action
+     * @type String
+     * @description Action of UrForm
+     */
+    this.action;
+    /**
+     * @property enctype
+     * @type String
+     * @description Enctype of UrForm
+     */
+    this.enctype;
+    /**
+     * @property formElement
+     * @type Object
+     * @description UrDom/UrWidget elements in UrForm
+     */
+    this.formElement = {};
 
     UrWidget.call(this, settings, "UrForm");
 
@@ -31,6 +63,9 @@ var UrForm = function(settings){
 UrForm.prototype=new UrWidget();
 UrForm.prototype.constructor=UrForm;
 /**
+ * Add UrField in UrForm and save it in formElement property
+ * @method add
+ * @for UrForm
  * @param {UrField} element
  */
 UrForm.prototype.add = function(element){
@@ -38,7 +73,10 @@ UrForm.prototype.add = function(element){
     this.formElement[element.getName()] = element;
 };
 /**
- * @param {string} method
+ * Set method of UrForm
+ * @method setMethod
+ * @for UrForm
+ * @param {String} method
  */
 UrForm.prototype.setMethod = function(method){
     this.method = method;
@@ -46,7 +84,10 @@ UrForm.prototype.setMethod = function(method){
         this.element.setAttribute("method", this.method);
 };
 /**
- * @param {string} action
+ * Set action of UrForm
+ * @method setMethod
+ * @for UrForm
+ * @param {String} action
  */
 UrForm.prototype.setAction = function(action){
     this.action = action;
@@ -54,7 +95,10 @@ UrForm.prototype.setAction = function(action){
         this.element.setAttribute("action", this.action);
 };
 /**
- * @param {string} enctype
+ * Set enctype of UrForm
+ * @method setEnctype
+ * @for UrForm
+ * @param {String} enctype
  */
 UrForm.prototype.setEnctype = function(enctype){
     this.enctype = enctype;
@@ -62,13 +106,19 @@ UrForm.prototype.setEnctype = function(enctype){
         this.element.setAttribute("enctype", this.enctype);
 };
 /**
- * @returns {Array<UrDom>}
+ * Get UrForm's UrField
+ * @method getFormElement
+ * @for UrForm
+ * @return {Array}
  */
 UrForm.prototype.getFormElement=function(){
     return this.formElement;
-}
+};
 /**
- * @returns {{}}
+ * Serialize (Object of value) UrForm's UrField
+ * @method serialize
+ * @for UrForm
+ * @return {Object}
  */
 UrForm.prototype.serialize = function(){
     var tmp = {};
@@ -77,6 +127,9 @@ UrForm.prototype.serialize = function(){
     return tmp;
 }
 /**
- * @param {function} method
+ * Add event on submit
+ * @method submit
+ * @for UrForm
+ * @param {Function} method
  */
 UrForm.prototype.submit = function(method){ this.element.onsubmit = method; };

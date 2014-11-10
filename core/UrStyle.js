@@ -1,12 +1,29 @@
 /**
  * The UrStyle class is the base class that encapsulates the look and feel of one UrDom
- * @param {Object} style
- * @param {UrDom} element
+ * @class UrStyle
+ * @extends UrObject
+ * @author Flavien Collomb
+ * @param {Object} style Object with style attributes
+ * @param {UrDom} UrDom element stylized
+ * @example
+ *      var style = new UrStyle(
+ *          {"background":"black"},
+ *          new UrWidget({"element": document.getElementsByTagName("body")[0]})
+ *      );
  * @constructor
  */
 var UrStyle = function(style, element){
     UrObject.call(this, "UrStyle");
-    /** @type UrDom */ this.element = element;
+    /**
+     * @property element
+     * @type UrDom
+     */
+    this.element = element;
+    /**
+     * @property json
+     * @type UrJson
+     */
+    this.json;
 
     if(style != undefined){
         this.json = new UrJson(style);
@@ -17,14 +34,21 @@ var UrStyle = function(style, element){
 };
 UrStyle.prototype=new UrObject();
 UrStyle.prototype.constructor=UrStyle;
-
+/**
+ * Apply style on UrDom element
+ * @method design
+ * @for UrStyle
+ */
 UrStyle.prototype.design = function(){
     this.element.style = this;
     if(this.element != undefined) this.json.each(this.set, this);
 };
 /**
- * @param {string} attribute
- * @param {string|number} style
+ * Set a style attribute
+ * @method set
+ * @for UrStyle
+ * @param {String} attribute
+ * @param {String|Number} style
  */
 UrStyle.prototype.set = function(attribute, style){
     attribute = new UrString(attribute).toCamelCase();
@@ -32,8 +56,11 @@ UrStyle.prototype.set = function(attribute, style){
     this.element.getElement().style[attribute] = style;
 };
 /**
- * @param {string} attribute
- * @returns {*}
+ * Get a style attribute
+ * @method set
+ * @for UrStyle
+ * @param {String} attribute
+ * @return {*}
  */
 UrStyle.prototype.get = function(attribute){
     attribute = new Urtring(attribute).toCamelCase();
@@ -41,8 +68,11 @@ UrStyle.prototype.get = function(attribute){
     else return this.elem.getNode().style[attribute];
 };
 /**
+ * Copy the style in other UrDom element
+ * @method set
+ * @for UrStyle
  * @param {UrDom} elem
- * @returns {UrStyle}
+ * @return {UrStyle}
  */
 UrStyle.prototype.copy = function(elem){
     return new UrStyle(this.json.get(), elem);

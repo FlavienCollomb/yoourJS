@@ -1,9 +1,16 @@
 /**
- * The UrValidatorEmail class is used to check an URL.
+ * The UrValidatorURL class is used to check an URL.
+ * @class UrValidatorURL
+ * @extends UrValidatorRegExp
  * @param {Object} settings
- *      @param {string} [settings.mandatory]
- *      @param {string} [settings.messages]
- *      @param {string} [settings.name]
+ *      @param {String} [settings.mandatory] Mandatory field ?
+ *      @param {String} [settings.messages] Messages used for each error
+ *      @param {String} [settings.name] UrValidatorURL name
+ * @example
+ *      var validator = new UrValidatorURL({
+ *          "mandatory" : true,
+ *          "messages" : {"mandatory":"URL is mandatory","regexp":"Invalid URL"}
+ *      });
  * @constructor
  */
 var UrValidatorURL = function(settings){
@@ -16,7 +23,13 @@ var UrValidatorURL = function(settings){
 };
 UrValidatorURL.prototype=new UrValidatorRegExp();
 UrValidatorURL.prototype.constructor=UrValidatorURL;
-
+/**
+ * Validate value
+ * @method validate
+ * @for UrValidatorURL
+ * @param {String} value
+ * @return {Boolean}
+ */
 UrValidatorURL.prototype.validate = function(value){
     return UrValidatorRegExp.prototype.validate.call(this, value);
 };

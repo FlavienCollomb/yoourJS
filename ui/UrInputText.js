@@ -1,15 +1,22 @@
 /**
  * The UrInputText is used to construct input of type text
+ * @class UrInputText
+ * @extends UrInput
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {boolean}        [settings.enable]
- *      @param {string}         [settings.defaultValue]
- *      @param {UrValidator}    [settings.validator]
- *      @param {string}         [settings.placeholder]
+ *      @param {String}         [settings.name] UrInputText name
+ *      @param {UrWidget}       [settings.parent] UrInputText's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrInputText
+ *      @param {String}         [settings.className] HTML attribute "class" of UrInputText
+ *      @param {Object|UrStyle} [settings.style] Style of UrInputText
+ *      @param {Boolean}        [settings.enable] HTML attribute "enable" of UrInputText
+ *      @param {String}         [settings.defaultValue] Default value of UrInputText
+ *      @param {UrValidator}    [settings.validator] Validator used for UrInputText validation
+ *      @param {String}         [settings.placeholder] HTML attribute placeholder of UrInputText
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var input1 = new UrInputText({"parent":body});
  * @constructor
  */
 var UrInputText = function(settings){

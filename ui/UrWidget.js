@@ -1,14 +1,33 @@
 /**
  * The UrWidget object is the base object of all user node.
+ * @class UrWidget
+ * @extends UrDom
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {UrDom}          [settings.element]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {string}         [settings.html]
- * @param {string} [type]
+ *      @param {String}         [settings.name] UrWidget name
+ *      @param {UrWidget}       [settings.parent] UrWidget's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {UrDom}          [settings.element] UrWidget's HTML element already existing in the DOM
+ *      @param {String}         [settings.id] HTML attribute "id" of UrWidget
+ *      @param {String}         [settings.className]  HTML attribute "class" of UrWidget
+ *      @param {Object|UrStyle} [settings.style] Style of UrWidget
+ *      @param {string}         [settings.html] HTML content of UrWidget
+ * @param {string} [type] UrWidget type
+ * @example
+ *      var html = document.getElementsByTagName("html")[0];
+ *      html = new UrWidget({
+ *          "element": html,
+ *          "id":"html",
+ *          "className":"horizontalFull verticalFull",
+ *          "style":{"fontSize":"146%"}
+ *       });
+ *       var widget = new UrWidget({
+ *          "parent":html,
+ *          "html":"First UrWidget"
+ *       });
+ *       html.addChild(new UrWidget({
+ *          "parent":html,
+ *          "html":"Second UrWidget"
+ *       }));
  * @constructor
  */
 var UrWidget = function(settings, type){
@@ -16,9 +35,29 @@ var UrWidget = function(settings, type){
     if(settings == undefined) settings = {};
     UrDom.call(this, type, settings);
 
-    /** @type string */ this.html;
+    /**
+     * @property html
+     * @type String
+     * @description HTML content of UrWidget
+     */
+    this.html;
+    /**
+     * @property children
+     * @type Array
+     * @description Children added in UrWidget
+     */
     this.children = [];
+    /**
+     * @property children.types
+     * @type Object
+     * @description Children added in UrWidget by type
+     */
     this.children["types"] = {};
+    /**
+     * @property children.names
+     * @type Object
+     * @description Children added in UrWidget by name
+     */
     this.children["names"] = {};
 
     this.setHtml(settings.html);
@@ -26,7 +65,10 @@ var UrWidget = function(settings, type){
 UrWidget.prototype=new UrDom();
 UrWidget.prototype.constructor=UrWidget;
 /**
- * @param {UrDom} object
+ * Add child in UrWidget and in the DOM
+ * @method addChild
+ * @for UrWidget
+ * @param {UrDom|UrWidget} object
  */
 UrWidget.prototype.addChild = function(object){
 	this.children.push(object);
@@ -44,51 +86,65 @@ UrWidget.prototype.addChild = function(object){
     object.setParent(this);
 };
 /**
- * @param {string} html
+ * Set HTML content of UrWidget
+ * @method setHtml
+ * @for UrWidget
+ * @param {String} html
  */
 UrWidget.prototype.setHtml = function(html){
     this.html = html;
     if(this.html != undefined) this.element.innerHTML = html;
 };
 /**
- * @returns {string}
+ * Get HTML content of UrWidget
+ * @method getHtml
+ * @for UrWidget
+ * @return {String}
  */
 UrWidget.prototype.getHtml = function(){
     return this.html;
 };
 /**
- * @returns {UrDom}
+ * Get all children of UrWidget
+ * @method getChildren
+ * @for UrWidget
+ * @return {Array}
  */
 UrWidget.prototype.getChildren = function(){ return this.children; };
 /**
- * @param {string} name
- * @returns {UrDom}
+ * Get a child of UrWidget thanks its name
+ * @method getChildByName
+ * @for UrWidget
+ * @param {String} name
+ * @return {UrDom}
  */
 UrWidget.prototype.getChildByName = function(name){
     return this.children["names"][name];
 };
 /**
- * @param type
- * @returns {Array<UrDom>}
+ * Remove UrWidget and children
+ * @method remove
+ * @for UrWidget
  */
-UrWidget.prototype.getChildrenByType = function(type){
-//    var children = [];
-//    for(var i in this.children)
-//        if(this.children[i].getType() == type)
-//            children.push(this.children[i]);
-//    return children;
-};
 UrWidget.prototype.remove = function(){
     this.removeAllChildren();
     UrDom.prototype.remove.call(this);
 };
 /**
- * @param {string} name
+ * Remove a child of UrWidget thanks its name
+ * @method removeChildByName
+ * @for UrWidget
+ * @param {String} name
  */
 UrWidget.prototype.removeChildByName = function(name){
     this.element.removeChild(this.children["names"][name].getElement());
     delete this.children["names"][name];
 };
+/**
+ * Remove all children of UrWidget
+ * @method removeAllChildren
+ * @for UrWidget
+ */
 UrWidget.prototype.removeAllChildren = function(){
     while (this.element.firstChild)
         this.element.removeChild(this.element.firstChild);

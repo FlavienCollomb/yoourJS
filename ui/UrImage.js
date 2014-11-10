@@ -1,59 +1,101 @@
 /**
- * The UrImage object provides an image widget.
+ * The UrImage object provides an image widget
+ * @class UrImage
+ * @extends UrWidget
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {string}         [settings.src]
- *      @param {string}         [settings.alt]
- *      @param {string}         [settings.width]
- *      @param {string}         [settings.height]
- *
+ *      @param {String}         [settings.name] UrImage name
+ *      @param {UrWidget}       [settings.parent] UrImage's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrImage
+ *      @param {String}         [settings.className] HTML attribute "class" of UrImage
+ *      @param {Object|UrStyle} [settings.style] Style of UrImage
+ *      @param {String}         [settings.src] Source of UrImage
+ *      @param {String}         [settings.alt] Alt of UrImage
+ *      @param {String}         [settings.width] Width of UrImage
+ *      @param {String}         [settings.height] Height of UrImage
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var image = new UrImage({
+ *          "parent":body,
+ *          "src":"your-link/your-image.png",
+ *          "width":50,
+ *          "height":50
+ *      });
  * @constructor
  */
 var UrImage = function(settings){
     if(settings == undefined) settings = {};
     settings.element = document.createElement("img");
-
-    /**@type string*/this.src,
-    /**@type string*/this.alt,
-    /**@type int*/this.width,
-    /**@type string*/ this.height;
+    /**
+     * @property src
+     * @type String
+     * @description Source of UrImage
+     */
+    this.src;
+    /**
+     * @property alt
+     * @type String
+     * @description Alt of UrImage
+     */
+    this.alt;
+    /**
+     * @property width
+     * @type Number
+     * @description Width of UrImage
+     */
+    this.width;
+    /**
+     * @property height
+     * @type Number
+     * @description Height of UrImage
+     */
+    this.height;
 
     UrDom.call(this, "UrImage", settings);
 
     this.setSrc(settings.src);
-    this.setTarget(settings.target);
+    this.setAlt(settings.alt);
     this.setWidth(settings.width);
     this.setHeight(settings.height);
 };
 UrImage.prototype=new UrDom();
 UrImage.prototype.constructor=UrImage;
 /**
- * @param {string} src
+ * Set source of UrImage
+ * @method setSrc
+ * @for UrImage
+ * @param {String} src
  */
 UrImage.prototype.setSrc = function(src){
     this.src = src;
     if(this.src != undefined) this.element.src = this.src;
-}
+};
 /**
- * @param {string} alt
+ * Set alt of UrImage
+ * @method setAlt
+ * @for UrImage
+ * @param {String} alt
  */
-UrImage.prototype.setTarget = function(alt){
+UrImage.prototype.setAlt = function(alt){
     this.alt = alt;
     if(this.alt != undefined) this.element.alt = this.alt;
-}
+};
 /**
- * @param {int} width
+ * Set width of UrImage
+ * @method setWidth
+ * @for UrImage
+ * @param {Number} width
  */
 UrImage.prototype.setWidth = function(width){
     this.width = width;
     if(this.width != undefined) this.element.width = this.width;
 };
 /**
- * @param {int} height
+ * Set height of UrImage
+ * @method setHeight
+ * @for UrImage
+ * @param {Number} height
  */
 UrImage.prototype.setHeight = function(height){
     this.height = height;

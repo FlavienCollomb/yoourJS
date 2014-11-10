@@ -1,20 +1,46 @@
 /**
- * The UrDataTable object create a table of result thanks a JSON of correspondence.
+ * The UrDataTable object create a table of result thanks a description JSON of correspondence.
+ * @class UrDataTable
+ * @extends UrWidget
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {Array<Object>}  settings.datas
- *      @param {Object}         settings.description
+ *      @param {string}         [settings.name] UrDataTable name
+ *      @param {UrWidget}       [settings.parent] UrDataTable's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {string}         [settings.id] HTML attribute "id" of UrDataTable
+ *      @param {string}         [settings.className] HTML attribute "class" of UrDataTable
+ *      @param {Object|UrStyle} [settings.style] Style of UrDataTable
+ *      @param {Array}  settings.datas Datas for display in UrDataTable
+ *      @param {Object}         settings.description Description object used to create UrDataTable
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var result = new UrDataTable({
+ *          "parent": body,
+ *          "className": "table",
+ *          "description": {
+ *              "key1": {"title": "Key 1"},
+ *              "key2": {
+ *                  "title": "Key 2",
+ *                  "improve": function (json) {
+ *                      var html = json["parent"].getHtml();
+ *                      json["parent"].setHtml("");
+ *                      new UrWidget({"parent": json["parent"], "html": html + " " + json["index"]})
+ *                  },
+ *                  "params": ["key1", "key2", "test"]
+ *              }
+ *          },
+ *          "datas": [{"key1": "Test 1.1", "key2": "Test 1.2"}, {"key1": "Test 2.1", "key2": "Test 2.2"}]
+ *      });
  * @constructor
  */
 var UrDataTable = function(settings){
     /**
-     * PRIVATE
+     * Set the Thead of the HTML table of UrDataTable
+     * @method head
+     * @for UrDataTable
+     * @private
      */
-    head=function(description){
+    head=function(){
         that.head = new UrCustomWidget("thead", {"parent":that});
         var tr = new UrCustomWidget("tr", {"parent":that.head});
         for(var i in that.description)
@@ -23,17 +49,37 @@ var UrDataTable = function(settings){
         }
     };
     /**
-     * @type {UrDataTable}
+     * @property that
+     * @type UrDataTable
+     * @private
      */
     var that = this;
 
     if(settings == undefined) settings = {};
-
-    /** @type UrCustomWidget */ this.head;
-    /** @type UrCustomWidget */ this.body;
-    /** @type Array<UrCustomWidget> */ this.lines = [];
-    /** @type Object */ this.description = settings.description;
-
+    /**
+     * @property head
+     * @type UrCustomWidget
+     * @description Thead of the HTML table of UrDataTable
+     */
+    this.head;
+    /**
+     * @property body
+     * @type UrCustomWidget
+     * @description Tbody of the HTML table of the UrDataTable
+     */
+    this.body;
+    /**
+     * @property lines
+     * @type Array
+     * @description Array of each Tr of the HTML table of UrDataTable
+     */
+    this.lines = [];
+    /**
+     * @property description
+     * @type Object
+     * @description Array Description object used to create UrDataTable
+     */
+    this.description = settings.description;
 
     if(settings.datas != undefined && settings.datas instanceof Array && settings.datas.length > 0){
         settings.element = document.createElement("table");
@@ -45,7 +91,12 @@ var UrDataTable = function(settings){
 };
 UrDataTable.prototype=new UrWidget();
 UrDataTable.prototype.constructor=UrDataTable;
-
+/**
+ * Add one or several lines in UrDataTable
+ * @method add
+ * @for UrDataTable
+ * @param {Array} datas
+ */
 UrDataTable.prototype.add = function(datas){
     for(var i in datas){
         var tr = new UrCustomWidget("tr", {"parent":this.body});
@@ -73,14 +124,23 @@ UrDataTable.prototype.add = function(datas){
     }
 };
 /**
- * @returns {Array<UrCustomWidget>}
+ * Get Thead of the HTML table of UrDataTable
+ * @method getHead
+ * @for UrDataTable
+ * @return {UrCustomWidget}
  */
 UrDataTable.prototype.getHead = function(){ return this.head; };
 /**
- * @returns {Array<UrCustomWidget>}
+ * Get TBody of the HTML table of UrDataTable
+ * @method getBody
+ * @for UrDataTable
+ * @return {UrCustomWidget}
  */
 UrDataTable.prototype.getBody = function(){ return this.body; };
 /**
- * @returns {Array<UrCustomWidget>}
+ * Get Tr of the HTML table of UrDataTable
+ * @method getLines
+ * @for UrDataTable
+ * @return {Array}
  */
-UrDataTable.prototype.getLines = function(){ return this.lines; }
+UrDataTable.prototype.getLines = function(){ return this.lines; };

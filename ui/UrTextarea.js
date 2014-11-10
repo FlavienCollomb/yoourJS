@@ -1,24 +1,37 @@
 /**
  * The UrTextarea is used to construct textarea
+ * @class UrTextarea
+ * @extends UrInput
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {boolean}        [settings.enable]
- *      @param {string}         [settings.defaultValue]
- *      @param {UrValidator}    [settings.validator]
- *      @param {string}         [settings.placeholder]
- *      @param {number}         [settings.rows]
- *      @param {number}         [settings.cols]
+ *      @param {String}         [settings.name] UrTextarea name
+ *      @param {UrWidget}       [settings.parent] UrTextarea's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrTextarea
+ *      @param {String}         [settings.className] HTML attribute "class" of UrTextarea
+ *      @param {Object|UrStyle} [settings.style] Style of UrTextarea
+ *      @param {Boolean}        [settings.enable]  HTML attribute "disable" of UrTextarea
+ *      @param {String}         [settings.defaultValue] Default value of UrTextarea
+ *      @param {UrValidator}    [settings.validator] Validator used for UrTextarea validation
+ *      @param {String}         [settings.placeholder] HTML attribute "placeholder" of UrTextarea
+ *      @param {Number}         [settings.rows] Number of rows of UrTextarea
+ *      @param {Number}         [settings.cols] Number of cols of UrTextarea
  * @constructor
  */
 var UrTextarea = function(settings){
     if(settings == undefined) settings = {};
     settings.element = document.createElement("textarea");
-
-    this.rows, this.cols;
+    /**
+     * @property row
+     * @type Number
+     * @description Number of rows of UrTextarea
+     */
+    this.row;
+    /**
+     * @property cols
+     * @type Number
+     * @description Number of cols of UrTextarea
+     */
+    this.cols;
 
     UrInput.call(this, settings, "UrTextarea");
 
@@ -28,14 +41,20 @@ var UrTextarea = function(settings){
 UrTextarea.prototype=new UrInput();
 UrTextarea.prototype.constructor=UrTextarea;
 /**
- * @param {number} rows
+ * Set number of rows of UrTextarea
+ * @method setRows
+ * @for UrTextarea
+ * @param {Number} rows
  */
 UrTextarea.prototype.setRows = function(rows){
     this.rows = rows;
     if(this.rows != undefined) this.element.rows = this.rows;
 };
 /**
- * @param {number} cols
+ * Set number of cols of UrTextarea
+ * @method setCols
+ * @for UrTextarea
+ * @param {Number} cols
  */
 UrTextarea.prototype.setCols = function(cols){
     this.cols = cols;

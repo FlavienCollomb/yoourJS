@@ -1,48 +1,76 @@
 /**
  * The UrField object is the base object of all user form elements
+ * @class UrField
+ * @extends UrDom
+ * @author Flavien Collomb
  * @param {Object} settings
- *      @param {string}         [settings.name]
- *      @param {UrDom}          [settings.parent]
- *      @param {UrDom}          [settings.element]
- *      @param {string}         [settings.id]
- *      @param {string}         [settings.className]
- *      @param {Object|UrStyle} [settings.style]
- *      @param {boolean}        [settings.enable]
- *      @param {string}         [settings.defaultValue]
- *      @param {UrValidator}    [settings.validator]
- * @param {String} [type]
+ *      @param {String}         [settings.name] UrField name
+ *      @param {UrWidget}       [settings.parent] UrField's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {UrDom}          [settings.element] UrField's HTML element already existing in the DOM
+ *      @param {String}         [settings.id] HTML attribute "id" of UrField
+ *      @param {String}         [settings.className] HTML attribute "class" of UrField
+ *      @param {Object|UrStyle} [settings.style] Style of UrField
+ *      @param {Boolean}        [settings.enable] HTML attribute "disable" of UrField
+ *      @param {String}         [settings.defaultValue] Default value of UrField
+ *      @param {UrValidator}    [settings.validator] Validator used for UrField validation
+ * @param {String} [type] Type of UrField
  * @constructor
  */
 var UrField = function(settings, type){
     if(settings == undefined) settings = {};
     UrDom.call(this, type, settings);
-
-    /**@type boolean*/this.enable;
-    /**@type string*/this.defaultValue;
-    /**@type UrValidator*/this.validator;
+    /**
+     * @property enable
+     * @type Boolean
+     * @description HTML attribute "enable" of UrField
+     */
+    this.enable;
+    /**
+     * @property defaultValue
+     * @type String
+     * @description Default value of UrField
+     */
+    this.defaultValue;
+    /**
+     * @property validator
+     * @type UrValidator
+     * @description Validator used for field validation
+     */
+    this.validator;
 
     this.setEnable(settings.enable);
     this.setDefault(settings.defaultValue);
     this.setValidator(settings.validator);
-
-    /**@type boolean*/this.valid = true;
-    /**@type boolean*/this.modified = false;
+    /**
+     * @property valid
+     * @type Boolean
+     * @description Result of last validation of UrField
+     */
+    this.valid = true;
 };
 UrField.prototype=new UrDom();
 UrField.prototype.constructor=UrField;
 /**
- * @param {boolean} enable
+ * Enable or disable UrField
+ * @method setEnable
+ * @for UrField
+ * @param {Boolean} enable
  */
 UrField.prototype.setEnable = function(enable){
     if(enable == false){
         this.enable = enable;
         this.element.disabled = true;
     }
-    else
+    else{
+        this.element.disabled = false;
         this.enable = true;
+    }
 };
 /**
- * @param {string} defaultValue
+ * Set default value of UrField and reset UrField with this value
+ * @method setDefault
+ * @for UrField
+ * @param {String} defaultValue
  */
 UrField.prototype.setDefault = function(defaultValue){
     this.defaultValue = defaultValue;
@@ -50,42 +78,68 @@ UrField.prototype.setDefault = function(defaultValue){
         this.element.value = this.defaultValue;
 };
 /**
+ * Set current value of UrField
+ * @method setValue
+ * @for UrField
  * @param {string} value
  */
 UrField.prototype.setValue = function(value){
     this.element.value = value;
 };
-/*
-return {string}
+/**
+ * Get current value of UrField
+ * @method getValue
+ * @for UrField
+ * @return {String}
  */
 UrField.prototype.getValue = function(){ return this.element.value; };
 /**
+ * Set UrField's validator
+ * @method setValidator
+ * @for UrField
  * @param {UrValidator} validator
  */
 UrField.prototype.setValidator = function(validator){
     this.validator = validator;
 };
 /**
- * @returns {UrValidator|undefined}
+ * Get UrField's validator
+ * @method getValidator
+ * @for UrField
+ * @return {UrValidator|undefined}
  */
 UrField.prototype.getValidator = function(){
     return this.validator;
 };
 /**
- * @returns {boolean}
+ * Validate UrField
+ * @method validate
+ * @for UrField
+ * @return {Boolean}
  */
 UrField.prototype.validate = function(){
-    return this.validator.validate(this.getValue());
+    if(this.validator!=undefined)
+        return this.validator.validate(this.getValue());
+    return true;
 };
 /**
- * @param {function} method
+ * Add event on focus
+ * @method focus
+ * @for UrField
+ * @param {Function} method
  */
 UrField.prototype.focus = function(method){ this.element.onfocus =  method; };
 /**
- * @param {function} method
+ * Add event on blur
+ * @method blur
+ * @for UrField
+ * @param {Function} method
  */
 UrField.prototype.blur = function(method){ this.element.onblur =  method; };
 /**
- * @param {function} method
+ * Add event on change
+ * @method change
+ * @for UrField
+ * @param {Function} method
  */
-UrField.prototype.change = function(method){ this.element.onchange =  method; };
+UrField.prototype.change = function(method){ this.element.onchange = method; };

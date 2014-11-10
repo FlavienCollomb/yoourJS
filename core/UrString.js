@@ -1,23 +1,38 @@
 /**
  * The UrString class provides a Unicode character string.
- * @param {string} str
- * @param {string} [name]
+ * @class UrString
+ * @extends UrObject
+ * @author Flavien Collomb
+ * @param {String} str Encapsulated String in UrString
+ * @param {String} [name] UrString name
  * @constructor
  */
 var UrString = function(str, name){
     UrObject.call(this, "UrString", name);
+    /**
+     * @property str
+     * @type String
+     * @description String encapsulated in UrString
+     */
     this.str = str;
 };
 UrString.prototype=new UrObject();
 UrString.prototype.constructor=UrString;
 /**
- * @returns {string}
+ * Capitalize the string
+ * @method capitalize
+ * @for UrString
+ * @return {String}
  */
 UrString.prototype.capitalize = function(){
     return this.str.charAt(0).toUpperCase() + this.str.slice(1);
 };
 /**
- * @returns {string}
+ * Create CamelCase text thanks a separator
+ * @method toCamelCase
+ * @for UrString
+ * @param {String} separator
+ * @return {String}
  */
 UrString.prototype.toCamelCase = function(separator){
     if(separator == undefined) separator = "-";
