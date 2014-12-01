@@ -52,5 +52,5 @@ UrInput.prototype.getInputType = function(){ return this.inputType; };
 UrInput.prototype.setPlaceholder = function(placeholder){
     this.placeholder = placeholder;
     if(this.placeholder != undefined)
-        this.node.placeholder = this.placeholder;
+        this.element.placeholder = this.placeholder;
 };

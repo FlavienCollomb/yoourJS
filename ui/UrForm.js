@@ -67,9 +67,13 @@ UrForm.prototype.constructor=UrForm;
  * @method add
  * @for UrForm
  * @param {UrField} element
+ * @param {UrWidget} [element]
  */
-UrForm.prototype.add = function(element){
-    this.addChild(element);
+UrForm.prototype.add = function(element,parent){
+    if(parent==undefined)
+        this.addChild(element);
+    else
+        parent.addChild(element);
     this.formElement[element.getName()] = element;
 };
 /**

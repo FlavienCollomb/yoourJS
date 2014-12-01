@@ -993,7 +993,7 @@ UrInput.prototype.getInputType = function(){ return this.inputType; };
 UrInput.prototype.setPlaceholder = function(placeholder){
     this.placeholder = placeholder;
     if(this.placeholder != undefined)
-        this.node.placeholder = this.placeholder;
+        this.element.placeholder = this.placeholder;
 };
 /**
  * The UrNavigation object let you manage your website navigation thanks JavaScript. Must be created once!
@@ -1608,9 +1608,13 @@ UrForm.prototype.constructor=UrForm;
  * @method add
  * @for UrForm
  * @param {UrField} element
+ * @param {UrWidget} [element]
  */
-UrForm.prototype.add = function(element){
-    this.addChild(element);
+UrForm.prototype.add = function(element,parent){
+    if(parent==undefined)
+        this.addChild(element);
+    else
+        parent.addChild(element);
     this.formElement[element.getName()] = element;
 };
 /**
