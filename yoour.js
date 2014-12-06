@@ -2067,7 +2067,8 @@ var UrNotification=function(settings){
         settings.style = {
             "float"     :"right",
             "margin"    :"15px",
-            "border"    :"2px solid white"
+            "border"    :"2px solid white",
+            "color"     :"white"
         };
     /**
      * @property type
@@ -2120,9 +2121,9 @@ var UrNotification=function(settings){
     this.setTitle(settings.title);
     this.setText(settings.text);
 
-    this.mouseIn(function(){ _this.hover = true; });
+    this.mouseIn(function(){ _this.hoverState = true; });
     this.mouseLeave(function(){
-        _this.hover = false;
+        _this.hoverState = false;
         _this.remove();
     });
 
@@ -2142,17 +2143,21 @@ UrNotification.prototype.constructor=UrNotification;
  * @param {String} type
  */
 UrNotification.prototype.setType=function(type){
-    this.type = type || "info";
-    if(this.type == "default")
-        this.getStyle().set("background","#fcf8e3");
+    this.type = type || "default";
+    if(this.type == "default"){
+        this.getStyle().set("background","#eaeaea");
+        this.getStyle().set("color","black");
+    }
     if(this.type == "info")
-        this.getStyle().set("background","lightblue");
+        this.getStyle().set("background","#50b6d4");
     if(this.type == "success")
-        this.getStyle().set("background","#dff0d8");
+        this.getStyle().set("background","#55ab55");
     if(this.type == "warn")
-        this.getStyle().set("background","#ebb275");
+        this.getStyle().set("background","#fbaf44");
     if(this.type == "error")
-        this.getStyle().set("background","#f2dede");
+        this.getStyle().set("background","#ca403a");
+    if(this.type == "inverse")
+        this.getStyle().set("background","#3c3c3c");
 };
 /**
  * Set UrNotification time display
