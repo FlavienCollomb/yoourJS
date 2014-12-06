@@ -54,3 +54,12 @@ UrInput.prototype.setPlaceholder = function(placeholder){
     if(this.placeholder != undefined)
         this.element.placeholder = this.placeholder;
 };
+/**
+ * Return placeholder of UrInput
+ * @method getPlaceholder
+ * @for UrInput
+ * @returns {String}
+ */
+UrInput.prototype.getPlaceholder = function(){
+    return this.placeholder;
+};
