@@ -53,7 +53,7 @@ UrObject.prototype.setType = function(type){ this.type = type; };
  * @extends UrObject
  * @param {Object} settings
  *      @param {string} [settings.mandatory] Mandatory field ?
- *      @param {string} [settings.message] Messages used for each error
+ *      @param {string} [settings.messages] Messages used for each error
  *      @param {string} [settings.type] UrValidator type
  *      @param {string} [settings.name] UrValidator name
  * @example
@@ -79,6 +79,12 @@ var UrValidator = function(settings){
      * @description Message(s) for the error(s)
      */
     this.messages = {};
+    /**
+     * @property error
+     * @type String
+     * @description Current error message
+     */
+    this.error;
 
     this.setMessages(settings.messages);
     this.setMandatory(settings.mandatory);
@@ -87,7 +93,7 @@ UrValidator.prototype=new UrObject();
 UrValidator.prototype.constructor=UrValidator;
 /**
  * Is mandatory?
- * @method SetMandatory
+ * @method setMandatory
  * @for UrValidator
  * @param {Boolean} mandatory
  */
@@ -152,6 +158,15 @@ UrValidator.prototype.validate = function(value){
         return false;
     }
     return true;
+};
+/**
+ * Get current error
+ * @method getError
+ * @for UrValidator
+ * @return {String}
+ */
+UrValidator.prototype.getError = function(){
+    return this.error;
 };
 /**
  * The UrValidatorRegExp class is used to check a string against a regular expression.
