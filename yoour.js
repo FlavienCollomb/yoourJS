@@ -446,9 +446,9 @@ UrStyle.prototype.set = function(attribute, style){
  * @return {*}
  */
 UrStyle.prototype.get = function(attribute){
-    attribute = new Urtring(attribute).toCamelCase();
+    attribute = new UrString(attribute).toCamelCase();
     if(this.json.getValue(attribute) != undefined) return this.json[attribute];
-    else return this.elem.getNode().style[attribute];
+    else return this.element.getElement().style[attribute];
 };
 /**
  * Copy the style in other UrDom element
@@ -658,6 +658,41 @@ UrDom.prototype.mouseOut = function(method){ this.element.onmouseout = method; }
  */
 UrDom.prototype.mouseLeave = function(method){ this.element.onmouseleave = method; };
 /**
+ * Add event on focus
+ * @method focus
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.focus = function(method){ this.element.onfocus =  method; };
+/**
+ * Add event on blur
+ * @method blur
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.blur = function(method){ this.element.onblur =  method; };
+/**
+ * Add event on key up
+ * @method keyUp
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.keyUp = function(method){ this.element.onkeyup =  method; };
+/**
+ * Add event on key down
+ * @method keyDown
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.keyDown = function(method){ this.element.onkeydown =  method; };
+/**
+ * Add event on key press
+ * @method keyPress
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.keyPress = function(method){ this.element.onkeypress =  method; };
+/**
  * The UrWidget object is the base object of all user node.
  * @class UrWidget
  * @extends UrDom
@@ -761,6 +796,7 @@ UrWidget.prototype.setHtml = function(html){
  * @return {String}
  */
 UrWidget.prototype.getHtml = function(){
+    this.html = this.element.innerHTML;
     return this.html;
 };
 /**
@@ -933,20 +969,6 @@ UrField.prototype.validate = function(){
         return this.validator.validate(this.getValue());
     return true;
 };
-/**
- * Add event on focus
- * @method focus
- * @for UrField
- * @param {Function} method
- */
-UrField.prototype.focus = function(method){ this.element.onfocus =  method; };
-/**
- * Add event on blur
- * @method blur
- * @for UrField
- * @param {Function} method
- */
-UrField.prototype.blur = function(method){ this.element.onblur =  method; };
 /**
  * Add event on change
  * @method change

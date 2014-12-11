@@ -63,9 +63,9 @@ UrStyle.prototype.set = function(attribute, style){
  * @return {*}
  */
 UrStyle.prototype.get = function(attribute){
-    attribute = new Urtring(attribute).toCamelCase();
+    attribute = new UrString(attribute).toCamelCase();
     if(this.json.getValue(attribute) != undefined) return this.json[attribute];
-    else return this.elem.getNode().style[attribute];
+    else return this.element.getElement().style[attribute];
 };
 /**
  * Copy the style in other UrDom element

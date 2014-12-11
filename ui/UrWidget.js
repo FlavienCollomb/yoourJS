@@ -102,6 +102,7 @@ UrWidget.prototype.setHtml = function(html){
  * @return {String}
  */
 UrWidget.prototype.getHtml = function(){
+    this.html = this.element.innerHTML;
     return this.html;
 };
 /**

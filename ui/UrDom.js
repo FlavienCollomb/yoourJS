@@ -195,3 +195,38 @@ UrDom.prototype.mouseOut = function(method){ this.element.onmouseout = method; }
  * @param {Function} method
  */
 UrDom.prototype.mouseLeave = function(method){ this.element.onmouseleave = method; };
+/**
+ * Add event on focus
+ * @method focus
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.focus = function(method){ this.element.onfocus =  method; };
+/**
+ * Add event on blur
+ * @method blur
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.blur = function(method){ this.element.onblur =  method; };
+/**
+ * Add event on key up
+ * @method keyUp
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.keyUp = function(method){ this.element.onkeyup =  method; };
+/**
+ * Add event on key down
+ * @method keyDown
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.keyDown = function(method){ this.element.onkeydown =  method; };
+/**
+ * Add event on key press
+ * @method keyPress
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.keyPress = function(method){ this.element.onkeypress =  method; };

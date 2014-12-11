@@ -123,20 +123,6 @@ UrField.prototype.validate = function(){
     return true;
 };
 /**
- * Add event on focus
- * @method focus
- * @for UrField
- * @param {Function} method
- */
-UrField.prototype.focus = function(method){ this.element.onfocus =  method; };
-/**
- * Add event on blur
- * @method blur
- * @for UrField
- * @param {Function} method
- */
-UrField.prototype.blur = function(method){ this.element.onblur =  method; };
-/**
  * Add event on change
  * @method change
  * @for UrField
