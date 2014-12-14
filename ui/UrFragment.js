@@ -14,7 +14,8 @@
  */
 var UrFragment = function(name){
     var settings = {};
-    settings.name = name;
+    if(settings.name != undefined)
+        settings.name = name;
     settings.element = document.createDocumentFragment();
 
     UrWidget.call(this, settings, "UrFragment");
