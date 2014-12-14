@@ -9,7 +9,7 @@
  *      @param {string}         [settings.id] HTML attribute "id" of UrDataTable
  *      @param {string}         [settings.className] HTML attribute "class" of UrDataTable
  *      @param {Object|UrStyle} [settings.style] Style of UrDataTable
- *      @param {Array}  settings.datas Datas for display in UrDataTable
+ *      @param {Array}          settings.datas Datas for display in UrDataTable
  *      @param {Object}         settings.description Description object used to create UrDataTable
  * @example
  *      var body = document.getElementsByTagName("body")[0];
@@ -35,28 +35,6 @@
  */
 var UrDataTable = function(settings){
     /**
-     * Set the Thead of the HTML table of UrDataTable
-     * @method head
-     * @for UrDataTable
-     * @private
-     */
-    head=function(){
-        that.head = new UrCustomWidget("thead", {"parent":that});
-        var tr = new UrCustomWidget("tr", {"parent":that.head});
-        for(var i in that.description)
-            if(that.description[i]["hide"] == undefined){
-                var th = new UrCustomWidget("th", {"parent":tr,"html":that.description[i]["title"]});
-        }
-    };
-    /**
-     * @property that
-     * @type UrDataTable
-     * @private
-     */
-    var that = this;
-
-    if(settings == undefined) settings = {};
-    /**
      * @property head
      * @type UrCustomWidget
      * @description Thead of the HTML table of UrDataTable
@@ -73,21 +51,50 @@ var UrDataTable = function(settings){
      * @type Array
      * @description Array of each Tr of the HTML table of UrDataTable
      */
-    this.lines = [];
+    this.lines;
     /**
      * @property description
      * @type Object
      * @description Array Description object used to create UrDataTable
      */
-    this.description = settings.description;
+    this.description;
 
-    if(settings.datas != undefined && settings.datas instanceof Array && settings.datas.length > 0){
-        settings.element = document.createElement("table");
-        UrWidget.call(this, settings, "UrDataTable");
-        head();
-        this.body = new UrCustomWidget("tbody", {"parent":this});
-        this.add(settings.datas);
-    }
+    if(settings != undefined){
+        /**
+         * @property that
+         * @type UrDataTable
+         * @private
+         */
+        var that = this;
+        /**
+         * Set the Thead of the HTML table of UrDataTable
+         * @method head
+         * @for UrDataTable
+         * @private
+         */
+        head=function(){
+            that.head = new UrCustomWidget("thead", {"parent":that});
+            var tr = new UrCustomWidget("tr", {"parent":that.head});
+            for(var i in that.description)
+                if(that.description[i]["hide"] == undefined){
+                    var th = new UrCustomWidget("th", {"parent":tr,"html":that.description[i]["title"]});
+                }
+        };
+
+        var json = new UrJson(settings);
+        json.checkType({"datas":[Array],"description":[Object]});
+
+        this.lines = [];
+        this.description = settings.description;
+
+        if(settings.datas != undefined && settings.datas instanceof Array && settings.datas.length > 0){
+            settings.element = document.createElement("table");
+            UrWidget.call(this, settings, "UrDataTable");
+            head();
+            this.body = new UrCustomWidget("tbody", {"parent":this});
+            this.add(settings.datas);
+        }
+    };
 };
 UrDataTable.prototype=new UrWidget();
 UrDataTable.prototype.constructor=UrDataTable;

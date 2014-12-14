@@ -19,14 +19,13 @@
  *      var image = new UrImage({
  *          "parent":body,
  *          "src":"your-link/your-image.png",
+ *          "alt":"ALT",
  *          "width":50,
  *          "height":50
  *      });
  * @constructor
  */
 var UrImage = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("img");
     /**
      * @property src
      * @type String
@@ -52,12 +51,18 @@ var UrImage = function(settings){
      */
     this.height;
 
-    UrDom.call(this, "UrImage", settings);
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"src":["string"],"alt":["string","number"],"width":["number"],"height":["number"]});
 
-    this.setSrc(settings.src);
-    this.setAlt(settings.alt);
-    this.setWidth(settings.width);
-    this.setHeight(settings.height);
+        settings.element = document.createElement("img");
+        UrDom.call(this, "UrImage", settings);
+
+        this.setSrc(settings.src);
+        this.setAlt(settings.alt);
+        this.setWidth(settings.width);
+        this.setHeight(settings.height);
+    }
 };
 UrImage.prototype=new UrDom();
 UrImage.prototype.constructor=UrImage;

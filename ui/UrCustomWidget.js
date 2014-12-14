@@ -19,11 +19,15 @@
  * @constructor
  */
 var UrCustomWidget = function(widgetType, settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement(widgetType);
+    if(widgetType!= undefined && settings != undefined){
+        var json = new UrJson({"widgetType":widgetType});
+        json.checkType({"widgetType":["string"]});
 
-    var tmp = new UrString(widgetType);
-    UrWidget.call(this, settings, "Ur"+tmp.capitalize());
+        settings.element = document.createElement(widgetType);
+
+        var tmp = new UrString(widgetType);
+        UrWidget.call(this, settings, "Ur"+tmp.capitalize());
+    }
 };
 UrCustomWidget.prototype=new UrWidget();
 UrCustomWidget.prototype.constructor=UrCustomWidget;

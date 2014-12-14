@@ -15,6 +15,9 @@
  * @constructor
  */
 var UrJson = function(json, name){
+    if(!json instanceof  Object)
+        throw new TypeError("UrJson first attribute 'json' must be an {}");
+
     UrObject.call(this, "UrJson", name);
     /**
      * @property json
@@ -74,3 +77,37 @@ UrJson.prototype.getValue = function(key){ return this.json[key]; };
  * @param {String} key
  */
 UrJson.prototype.setValue = function(key, value){ this.json[key] = value; };
+/**
+ * Check each value type thanks a json control
+ * @method checkType
+ * @for UrJson
+ * @param {Object} jsonControl Example : {"id":["string"],"parent":[UrWidget],"style":[Array]}
+ */
+UrJson.prototype.checkType = function(jsonControl){
+    var error = "";
+
+    this.each(function(key,value){
+        if(jsonControl[key]!=undefined){
+            var i = 0;
+            var checked = false;
+            while(i<jsonControl[key].length && checked == false){
+                if(typeof jsonControl[key][i] == "string"){
+                    if(typeof value == jsonControl[key][i])
+                        checked = true;
+                    i++;
+                }
+                else{
+                    if(value instanceof jsonControl[key][i] == true)
+                        checked = true;
+                    i++;
+                }
+            }
+            if(checked==false)
+                error += key +" has an invalid type. Type expected " + jsonControl[key];
+        }
+    });
+
+    if(error == "")
+        return true;
+    throw new TypeError(error);
+};

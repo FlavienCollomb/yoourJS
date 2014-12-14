@@ -20,11 +20,12 @@
  * @constructor
  */
 var UrInputText = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("input");
+    if(settings != undefined){
+        settings.element = document.createElement("input");
 
-    UrInput.call(this, settings, "UrInputText");
-    this.inputType = this.element.type = "text";
+        UrInput.call(this, settings, "UrInputText");
+        this.inputType = this.element.type = "text";
+    }
 };
 UrInputText.prototype=new UrInput();
 UrInputText.prototype.constructor=UrInputText;

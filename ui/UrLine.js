@@ -25,18 +25,25 @@
  * @constructor
  */
 var UrLine = function(settings){
-    if(settings == undefined) settings = {};
     /**
      * @property parts
      * @type Array
      * @description Parts of UrLine
      */
-    this.parts=[];
+    this.parts;
 
-    UrWidget.call(this, settings, "UrLine");
+    if(settings != undefined){
+        this.parts = [];
 
-    for(var i=0; i<settings.partsNumber; i++)
-        this.parts.push(new UrWidget({"parent":this,"className":settings.partsClassName,"style":settings.partsStyle}));
+        var json = new UrJson(settings);
+        json.checkType({"partsNumber":["number"],"partsClassName":["string"],"partsStyle":[Object,UrStyle]});
+
+        UrWidget.call(this, settings, "UrLine");
+
+        if(settings.partsStyle == undefined) settings.partsStyle = {};
+        for(var i=0; i<settings.partsNumber; i++)
+            this.parts.push(new UrWidget({"parent":this,"className":settings.partsClassName,"style":settings.partsStyle}));
+    }
 };
 UrLine.prototype=new UrWidget();
 UrLine.prototype.constructor=UrLine;

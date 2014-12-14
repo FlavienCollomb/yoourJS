@@ -21,10 +21,6 @@
  * @constructor
  */
 var UrValidatorRegExp = function(settings){
-    if(settings == undefined) settings = {};
-
-    UrValidator.call(this, settings);
-    this.setType(settings.type);
     /**
      * @property regexp
      * @type String
@@ -32,7 +28,14 @@ var UrValidatorRegExp = function(settings){
      */
     this.regexp;
 
-    this.setRegExp(settings.pattern,settings.modifiers);
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"pattern":["string"],"modifiers":["string"]});
+
+        UrValidator.call(this, settings);
+        this.setType(settings.type);
+        this.setRegExp(settings.pattern,settings.modifiers);
+    }
 };
 UrValidatorRegExp.prototype=new UrValidator();
 UrValidatorRegExp.prototype.constructor=UrValidatorRegExp;

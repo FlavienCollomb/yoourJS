@@ -21,21 +21,6 @@
  * @constructor
  */
 var UrPopup=function(settings){
-    if(settings == undefined) settings = {};
-    if(settings.style == undefined)
-        settings.style = {
-            "position":"absolute",
-            "left":"50%",
-            "top":"150px",
-            "background":"white",
-            "width":"600px",
-            "margin-left":"-300px"
-        };
-
-    var body = document.getElementsByTagName("body")[0];
-
-    this.body = new UrWidget({"element": body});
-    settings.parent = this.body;
     /**
      * @property bg
      * @type UrWidget
@@ -61,11 +46,30 @@ var UrPopup=function(settings){
      */
     this.content;
 
-    this.setBg();
-    UrWidget.call(this, settings, "UrPopup");
-    this.setCloseWidget(settings.closeWidget);
-    this.setModal(settings.modal);
-    this.setContent(settings.content);
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"content":[UrWidget],"closeWidget":[UrDom],"modal":["boolean"]});
+
+        if(settings.style == undefined)
+            settings.style = {
+                "position":"absolute",
+                "left":"50%",
+                "top":"150px",
+                "background":"white",
+                "width":"600px",
+                "margin-left":"-300px"
+            };
+
+        var body = document.getElementsByTagName("body")[0];
+        this.body = new UrWidget({"element": body});
+        settings.parent = this.body;
+
+        this.setBg();
+        UrWidget.call(this, settings, "UrPopup");
+        this.setCloseWidget(settings.closeWidget);
+        this.setModal(settings.modal);
+        this.setContent(settings.content);
+    }
 };
 UrPopup.prototype=new UrWidget();
 UrPopup.prototype.constructor=UrPopup;

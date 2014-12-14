@@ -18,8 +18,6 @@
  * @constructor
  */
 var UrTextarea = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("textarea");
     /**
      * @property row
      * @type Number
@@ -33,10 +31,16 @@ var UrTextarea = function(settings){
      */
     this.cols;
 
-    UrInput.call(this, settings, "UrTextarea");
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"rows":["number"],"cols":["number"]});
 
-    this.setRows(settings.rows);
-    this.setCols(settings.cols);
+        settings.element = document.createElement("textarea");
+        UrInput.call(this, settings, "UrTextarea");
+
+        this.setRows(settings.rows);
+        this.setCols(settings.cols);
+    }
 };
 UrTextarea.prototype=new UrInput();
 UrTextarea.prototype.constructor=UrTextarea;

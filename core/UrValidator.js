@@ -3,8 +3,8 @@
  * @class UrValidator
  * @extends UrObject
  * @param {Object} settings
- *      @param {string} [settings.mandatory] Mandatory field ?
- *      @param {string} [settings.messages] Messages used for each error
+ *      @param {Boolean} [settings.mandatory] Mandatory field ?
+ *      @param {Object} [settings.messages] Messages used for each error
  *      @param {string} [settings.type] UrValidator type
  *      @param {string} [settings.name] UrValidator name
  * @example
@@ -15,8 +15,6 @@
  * @constructor
  */
 var UrValidator = function(settings){
-    if(settings == undefined) settings = {};
-    UrObject.call(this, settings.type, settings.name);
     /**
      * @property mandatory
      * @type Boolean
@@ -29,7 +27,7 @@ var UrValidator = function(settings){
      * @type Object
      * @description Message(s) for the error(s)
      */
-    this.messages = {};
+    this.messages;
     /**
      * @property error
      * @type String
@@ -37,8 +35,17 @@ var UrValidator = function(settings){
      */
     this.error;
 
-    this.setMessages(settings.messages);
-    this.setMandatory(settings.mandatory);
+    if(settings!=undefined){
+        this.messages = {};
+
+        var json = new UrJson(settings);
+        json.checkType({"name":["string"],"type":["string"],"mandatory":["boolean"],"messages":[Object]});
+
+        UrObject.call(this, settings.type, settings.name);
+
+        this.setMessages(settings.messages);
+        this.setMandatory(settings.mandatory);
+    }
 };
 UrValidator.prototype=new UrObject();
 UrValidator.prototype.constructor=UrValidator;

@@ -32,23 +32,6 @@
  * @constructor
  */
 var UrTable=function(settings){
-    head=function(){
-        if (settings.head != undefined) {
-            that.head = new UrCustomWidget("thead", {"parent":that});
-            var tr = new UrCustomWidget("tr", {"parent":that.head});
-
-            for(var i=0; i<settings.head.length;i++)
-                var th = new UrCustomWidget("th", {"parent":tr,"html":settings.head[i]});
-        }
-    };
-    /**
-     * @property that
-     * @type UrTable
-     * @private
-     */
-    var that = this;
-
-    if(settings == undefined) settings = {};
     /**
      * @property head
      * @type UrCustomWidget
@@ -68,11 +51,33 @@ var UrTable=function(settings){
      */
     this.lines = [];
 
-    this.setColumnNumber(settings.columnNumber);
-    settings.element = document.createElement("table");
-    UrWidget.call(this, settings, "UrTable");
-    head();
-    this.body = new UrCustomWidget("tbody", {"parent":this});
+    if(settings != undefined){
+        /**
+         * @property that
+         * @type UrDataTable
+         * @private
+         */
+        var that = this;
+
+        head=function(){
+            if (settings.head != undefined) {
+                that.head = new UrCustomWidget("thead", {"parent":that});
+                var tr = new UrCustomWidget("tr", {"parent":that.head});
+
+                for(var i=0; i<settings.head.length;i++)
+                    var th = new UrCustomWidget("th", {"parent":tr,"html":settings.head[i]});
+            }
+        };
+
+        var json = new UrJson(settings);
+        json.checkType({"columnNumber":["number"],"head":[Array]});
+
+        this.setColumnNumber(settings.columnNumber);
+        settings.element = document.createElement("table");
+        UrWidget.call(this, settings, "UrTable");
+        head();
+        this.body = new UrCustomWidget("tbody", {"parent":this});
+    }
 };
 UrTable.prototype=new UrWidget();
 UrTable.prototype.constructor=UrTable;

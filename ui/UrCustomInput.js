@@ -34,17 +34,28 @@
  * @constructor
  */
 var UrCustomInput = function(inputType, settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("input");
-
-    var tmp = new UrString(inputType);
-    UrInput.call(this, settings, "Ur"+tmp.capitalize());
     /**
      * @property inputType
      * @type {String}
      * @description Input type, for example "text"
      */
-    this.inputType = this.element.type = inputType;
+    this.inputType;
+
+    if(inputType!= undefined && settings != undefined){
+        var json = new UrJson({"inputType":inputType});
+        json.checkType({"inputType":["string"]});
+
+        settings.element = document.createElement("input");
+
+        var tmp = new UrString(inputType);
+        UrInput.call(this, settings, "Ur"+tmp.capitalize());
+        /**
+         * @property inputType
+         * @type {String}
+         * @description Input type, for example "text"
+         */
+        this.inputType = this.element.type = inputType;
+    }
 };
 UrCustomInput.prototype=new UrInput();
 UrCustomInput.prototype.constructor=UrCustomInput;

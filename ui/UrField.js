@@ -17,8 +17,6 @@
  * @constructor
  */
 var UrField = function(settings, type){
-    if(settings == undefined) settings = {};
-    UrDom.call(this, type, settings);
     /**
      * @property enable
      * @type Boolean
@@ -37,19 +35,39 @@ var UrField = function(settings, type){
      * @description Validator used for field validation
      */
     this.validator;
-
-    this.setEnable(settings.enable);
-    this.setDefault(settings.defaultValue);
-    this.setValidator(settings.validator);
     /**
      * @property valid
      * @type Boolean
      * @description Result of last validation of UrField
      */
-    this.valid = true;
+    this.valid;
+
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"enable":["boolean"],"defaultValue":["string","number"],"validator":[UrValidator]});
+
+        UrDom.call(this, type, settings);
+
+        this.setEnable(settings.enable);
+        this.setDefault(settings.defaultValue);
+        this.setValidator(settings.validator);
+        this.setFieldName(settings.name);
+
+        this.valid= true;
+    }
 };
 UrField.prototype=new UrDom();
 UrField.prototype.constructor=UrField;
+/**
+ * Set html name of UrField
+ * @method setFieldName
+ * @for UrField
+ * @param {string} name
+ */
+UrField.prototype.setFieldName = function(name){
+    if(name!=undefined)
+    this.element.name = name;
+};
 /**
  * Enable or disable UrField
  * @method setEnable

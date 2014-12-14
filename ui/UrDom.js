@@ -7,27 +7,25 @@
  * @param {Object} settings
  *      @param {String}         [settings.name] UrDom name
  *      @param {UrWidget}       [settings.parent] UrDom's parent in DOM (UrWidget or specialised UrWidget)
- *      @param {UrDom}          [settings.element] UrDom's HTML element already existing in the DOM
+ *      @param {Node}           [settings.element] Node HTML element already existing in the DOM
  *      @param {String}         [settings.id] HTML attribute "id" of UrDom
  *      @param {String}         [settings.className]  HTML attribute "class" of UrDom
  *      @param {Object|UrStyle} [settings.style] Style of UrDom
  * @constructor
  */
 var UrDom = function(type, settings){
-    if(settings == undefined) settings = {};
-    UrObject.call(this, type, settings.name);
     /**
      * @property parent
      * @type UrWidget
      * @description UrDom's parent in DOM (UrWidget or specialised UrWidget)
      */
-    this.parent = settings.parent;
+    this.parent;
     /**
      * @property element
      * @type HTMLElement|Node|DocumentFragment
      * @description UrDom's HTML element already existing in the DOM
      */
-    this.element = settings.element;
+    this.element;
     /**
      * @property style
      * @type Object|UrStyle
@@ -52,26 +50,37 @@ var UrDom = function(type, settings){
      * @description HTML attribute "class" of UrDom
      */
     this.className;
-    /**
-     * @property that
-     * @type UrDom
-     * @private
-     */
-    var that = this;
 
-    (function setNode(){
-        if(that.element == undefined) that.element = document.createElement("div");
-        else{
-            try { if(that.element instanceof jQuery) that.element = that.element[0]; } catch(e) {}
-        }
-    })();
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"name":["string"],"parent":[UrWidget],"element":[Node],"id":["string"],"className":["string"],"style":[Object,UrStyle]});
 
-    this.setStyle(settings.style);
-    this.setId(settings.id);
-    this.setName(settings.name);
-    this.setClassName(settings.className);
+        UrObject.call(this, type, settings.name);
 
-    if(this.parent != undefined) this.parent.addChild(this);
+        this.parent = settings.parent;
+        this.element = settings.element;
+
+        /**
+         * @property that
+         * @type UrDom
+         * @private
+         */
+        var that = this;
+
+        (function setNode(){
+            if(that.element == undefined) that.element = document.createElement("div");
+            else{
+                try { if(that.element instanceof jQuery) that.element = that.element[0]; } catch(e) {}
+            }
+        })();
+
+        this.setStyle(settings.style);
+        this.setId(settings.id);
+        this.setName(settings.name);
+        this.setClassName(settings.className);
+
+        if(this.parent != undefined) this.parent.addChild(this);
+    }
 };
 UrDom.prototype=new UrObject();
 UrDom.prototype.constructor=UrDom;

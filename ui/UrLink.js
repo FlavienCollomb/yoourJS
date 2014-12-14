@@ -23,8 +23,6 @@
  * @constructor
  */
 var UrLink = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("a");
     /**
      * @property href
      * @type String
@@ -38,10 +36,16 @@ var UrLink = function(settings){
      */
     this.target;
 
-    UrWidget.call(this, settings, "UrLink");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"href":["string"],"target":["string"]});
 
-    this.setHref(settings.href);
-    this.setTarget(settings.target);
+        settings.element = document.createElement("a");
+        UrWidget.call(this, settings, "UrLink");
+
+        this.setHref(settings.href);
+        this.setTarget(settings.target);
+    }
 };
 UrLink.prototype=new UrWidget();
 UrLink.prototype.constructor=UrLink;

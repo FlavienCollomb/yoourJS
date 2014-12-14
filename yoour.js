@@ -52,8 +52,8 @@ UrObject.prototype.setType = function(type){ this.type = type; };
  * @class UrValidator
  * @extends UrObject
  * @param {Object} settings
- *      @param {string} [settings.mandatory] Mandatory field ?
- *      @param {string} [settings.messages] Messages used for each error
+ *      @param {Boolean} [settings.mandatory] Mandatory field ?
+ *      @param {Object} [settings.messages] Messages used for each error
  *      @param {string} [settings.type] UrValidator type
  *      @param {string} [settings.name] UrValidator name
  * @example
@@ -64,8 +64,6 @@ UrObject.prototype.setType = function(type){ this.type = type; };
  * @constructor
  */
 var UrValidator = function(settings){
-    if(settings == undefined) settings = {};
-    UrObject.call(this, settings.type, settings.name);
     /**
      * @property mandatory
      * @type Boolean
@@ -78,7 +76,7 @@ var UrValidator = function(settings){
      * @type Object
      * @description Message(s) for the error(s)
      */
-    this.messages = {};
+    this.messages;
     /**
      * @property error
      * @type String
@@ -86,8 +84,17 @@ var UrValidator = function(settings){
      */
     this.error;
 
-    this.setMessages(settings.messages);
-    this.setMandatory(settings.mandatory);
+    if(settings!=undefined){
+        this.messages = {};
+
+        var json = new UrJson(settings);
+        json.checkType({"name":["string"],"type":["string"],"mandatory":["boolean"],"messages":[Object]});
+
+        UrObject.call(this, settings.type, settings.name);
+
+        this.setMessages(settings.messages);
+        this.setMandatory(settings.mandatory);
+    }
 };
 UrValidator.prototype=new UrObject();
 UrValidator.prototype.constructor=UrValidator;
@@ -191,10 +198,6 @@ UrValidator.prototype.getError = function(){
  * @constructor
  */
 var UrValidatorRegExp = function(settings){
-    if(settings == undefined) settings = {};
-
-    UrValidator.call(this, settings);
-    this.setType(settings.type);
     /**
      * @property regexp
      * @type String
@@ -202,7 +205,14 @@ var UrValidatorRegExp = function(settings){
      */
     this.regexp;
 
-    this.setRegExp(settings.pattern,settings.modifiers);
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"pattern":["string"],"modifiers":["string"]});
+
+        UrValidator.call(this, settings);
+        this.setType(settings.type);
+        this.setRegExp(settings.pattern,settings.modifiers);
+    }
 };
 UrValidatorRegExp.prototype=new UrValidator();
 UrValidatorRegExp.prototype.constructor=UrValidatorRegExp;
@@ -306,6 +316,16 @@ UrString.prototype.toCamelCase = function(separator){
     return this.str;
 };
 /**
+ * Create CamelCase text thanks a separator
+ * @method toCamelCase
+ * @for UrString
+ * @param {String} separator
+ * @return {String}
+ */
+UrString.prototype.htmlEntities = function(){
+
+};
+/**
  * The core module contains core non-GUI functionality.
  * @module core
  */
@@ -322,6 +342,9 @@ UrString.prototype.toCamelCase = function(separator){
  * @constructor
  */
 var UrJson = function(json, name){
+    if(!json instanceof  Object)
+        throw new TypeError("UrJson first attribute 'json' must be an {}");
+
     UrObject.call(this, "UrJson", name);
     /**
      * @property json
@@ -381,6 +404,40 @@ UrJson.prototype.getValue = function(key){ return this.json[key]; };
  * @param {String} key
  */
 UrJson.prototype.setValue = function(key, value){ this.json[key] = value; };
+/**
+ * Check each value type thanks a json control
+ * @method checkType
+ * @for UrJson
+ * @param {Object} jsonControl Example : {"id":["string"],"parent":[UrWidget],"style":[Array]}
+ */
+UrJson.prototype.checkType = function(jsonControl){
+    var error = "";
+
+    this.each(function(key,value){
+        if(jsonControl[key]!=undefined){
+            var i = 0;
+            var checked = false;
+            while(i<jsonControl[key].length && checked == false){
+                if(typeof jsonControl[key][i] == "string"){
+                    if(typeof value == jsonControl[key][i])
+                        checked = true;
+                    i++;
+                }
+                else{
+                    if(value instanceof jsonControl[key][i] == true)
+                        checked = true;
+                    i++;
+                }
+            }
+            if(checked==false)
+                error += key +" has an invalid type. Type expected " + jsonControl[key];
+        }
+    });
+
+    if(error == "")
+        return true;
+    throw new TypeError(error);
+};
 /**
  * The UrStyle class is the base class that encapsulates the look and feel of one UrDom
  * @class UrStyle
@@ -469,27 +526,25 @@ UrStyle.prototype.copy = function(elem){
  * @param {Object} settings
  *      @param {String}         [settings.name] UrDom name
  *      @param {UrWidget}       [settings.parent] UrDom's parent in DOM (UrWidget or specialised UrWidget)
- *      @param {UrDom}          [settings.element] UrDom's HTML element already existing in the DOM
+ *      @param {Node}           [settings.element] Node HTML element already existing in the DOM
  *      @param {String}         [settings.id] HTML attribute "id" of UrDom
  *      @param {String}         [settings.className]  HTML attribute "class" of UrDom
  *      @param {Object|UrStyle} [settings.style] Style of UrDom
  * @constructor
  */
 var UrDom = function(type, settings){
-    if(settings == undefined) settings = {};
-    UrObject.call(this, type, settings.name);
     /**
      * @property parent
      * @type UrWidget
      * @description UrDom's parent in DOM (UrWidget or specialised UrWidget)
      */
-    this.parent = settings.parent;
+    this.parent;
     /**
      * @property element
      * @type HTMLElement|Node|DocumentFragment
      * @description UrDom's HTML element already existing in the DOM
      */
-    this.element = settings.element;
+    this.element;
     /**
      * @property style
      * @type Object|UrStyle
@@ -514,26 +569,37 @@ var UrDom = function(type, settings){
      * @description HTML attribute "class" of UrDom
      */
     this.className;
-    /**
-     * @property that
-     * @type UrDom
-     * @private
-     */
-    var that = this;
 
-    (function setNode(){
-        if(that.element == undefined) that.element = document.createElement("div");
-        else{
-            try { if(that.element instanceof jQuery) that.element = that.element[0]; } catch(e) {}
-        }
-    })();
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"name":["string"],"parent":[UrWidget],"element":[Node],"id":["string"],"className":["string"],"style":[Object,UrStyle]});
 
-    this.setStyle(settings.style);
-    this.setId(settings.id);
-    this.setName(settings.name);
-    this.setClassName(settings.className);
+        UrObject.call(this, type, settings.name);
 
-    if(this.parent != undefined) this.parent.addChild(this);
+        this.parent = settings.parent;
+        this.element = settings.element;
+
+        /**
+         * @property that
+         * @type UrDom
+         * @private
+         */
+        var that = this;
+
+        (function setNode(){
+            if(that.element == undefined) that.element = document.createElement("div");
+            else{
+                try { if(that.element instanceof jQuery) that.element = that.element[0]; } catch(e) {}
+            }
+        })();
+
+        this.setStyle(settings.style);
+        this.setId(settings.id);
+        this.setName(settings.name);
+        this.setClassName(settings.className);
+
+        if(this.parent != undefined) this.parent.addChild(this);
+    }
 };
 UrDom.prototype=new UrObject();
 UrDom.prototype.constructor=UrDom;
@@ -725,10 +791,6 @@ UrDom.prototype.keyPress = function(method){ this.element.onkeypress =  method; 
  * @constructor
  */
 var UrWidget = function(settings, type){
-    if(type == "" || type == undefined) type = "UrWidget";
-    if(settings == undefined) settings = {};
-    UrDom.call(this, type, settings);
-
     /**
      * @property html
      * @type String
@@ -740,21 +802,31 @@ var UrWidget = function(settings, type){
      * @type Array
      * @description Children added in UrWidget
      */
-    this.children = [];
-    /**
-     * @property children.types
-     * @type Object
-     * @description Children added in UrWidget by type
-     */
-    this.children["types"] = {};
-    /**
-     * @property children.names
-     * @type Object
-     * @description Children added in UrWidget by name
-     */
-    this.children["names"] = {};
+    this.children;
 
-    this.setHtml(settings.html);
+    if(settings!=undefined){
+        this.children = [];
+        /**
+         * @property children.types
+         * @type Object
+         * @description Children added in UrWidget by type
+         */
+        this.children["types"] = {};
+        /**
+         * @property children.names
+         * @type Object
+         * @description Children added in UrWidget by name
+         */
+        this.children["names"] = {};
+
+        var json = new UrJson(settings);
+        json.checkType({"html":["string","number"]});
+
+        if(type == "" || type == undefined) type = "UrWidget";
+        UrDom.call(this, type, settings);
+
+        this.setHtml(settings.html);
+    }
 };
 UrWidget.prototype=new UrDom();
 UrWidget.prototype.constructor=UrWidget;
@@ -864,8 +936,6 @@ UrWidget.prototype.removeAllChildren = function(){
  * @constructor
  */
 var UrField = function(settings, type){
-    if(settings == undefined) settings = {};
-    UrDom.call(this, type, settings);
     /**
      * @property enable
      * @type Boolean
@@ -884,19 +954,39 @@ var UrField = function(settings, type){
      * @description Validator used for field validation
      */
     this.validator;
-
-    this.setEnable(settings.enable);
-    this.setDefault(settings.defaultValue);
-    this.setValidator(settings.validator);
     /**
      * @property valid
      * @type Boolean
      * @description Result of last validation of UrField
      */
-    this.valid = true;
+    this.valid;
+
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"enable":["boolean"],"defaultValue":["string","number"],"validator":[UrValidator]});
+
+        UrDom.call(this, type, settings);
+
+        this.setEnable(settings.enable);
+        this.setDefault(settings.defaultValue);
+        this.setValidator(settings.validator);
+        this.setFieldName(settings.name);
+
+        this.valid= true;
+    }
 };
 UrField.prototype=new UrDom();
 UrField.prototype.constructor=UrField;
+/**
+ * Set html name of UrField
+ * @method setFieldName
+ * @for UrField
+ * @param {string} name
+ */
+UrField.prototype.setFieldName = function(name){
+    if(name!=undefined)
+    this.element.name = name;
+};
 /**
  * Enable or disable UrField
  * @method setEnable
@@ -995,8 +1085,6 @@ UrField.prototype.change = function(method){ this.element.onchange = method; };
  * @constructor
  */
 var UrInput = function(settings, type){
-    if(settings == undefined) settings = {};
-	UrField.call(this, settings, type);
     /**
      * @property placeholder
      * @type {String}
@@ -1010,7 +1098,13 @@ var UrInput = function(settings, type){
      */
     this.inputType;
 
-    this.setPlaceholder(settings.placeholder);
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"placeholder":["string","number"]});
+
+        UrField.call(this, settings, type);
+        this.setPlaceholder(settings.placeholder);
+    }
 };
 UrInput.prototype=new UrField();
 UrInput.prototype.constructor=UrInput;
@@ -1306,12 +1400,13 @@ UrSession.prototype.clear=function(){
  * @constructor
  */
 var UrValidatorEmail = function(settings){
-    if(settings == undefined) settings = {};
-    settings["pattern"] = "^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$";
-    settings["modifiers"] = "i";
-    settings["type"] = "UrValidatorEmail";
+    if(settings!=undefined){
+        settings["pattern"] = "^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$";
+        settings["modifiers"] = "i";
+        settings["type"] = "UrValidatorEmail";
 
-    UrValidatorRegExp.call(this, settings);
+        UrValidatorRegExp.call(this, settings);
+    }
 };
 UrValidatorEmail.prototype=new UrValidatorRegExp();
 UrValidatorEmail.prototype.constructor=UrValidatorEmail;
@@ -1341,12 +1436,13 @@ UrValidatorEmail.prototype.validate = function(value){
  * @constructor
  */
 var UrValidatorURL = function(settings){
-    if(settings == undefined) settings = {};
-    settings["pattern"] = "(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)";
-    settings["modifiers"] = "i";
-    settings["type"] = "UrValidatorURL";
+    if(settings!=undefined){
+        settings["pattern"] = "(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)";
+        settings["modifiers"] = "i";
+        settings["type"] = "UrValidatorURL";
 
-    UrValidatorRegExp.call(this, settings);
+        UrValidatorRegExp.call(this, settings);
+    }
 };
 UrValidatorURL.prototype=new UrValidatorRegExp();
 UrValidatorURL.prototype.constructor=UrValidatorURL;
@@ -1396,17 +1492,28 @@ UrValidatorURL.prototype.validate = function(value){
  * @constructor
  */
 var UrCustomInput = function(inputType, settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("input");
-
-    var tmp = new UrString(inputType);
-    UrInput.call(this, settings, "Ur"+tmp.capitalize());
     /**
      * @property inputType
      * @type {String}
      * @description Input type, for example "text"
      */
-    this.inputType = this.element.type = inputType;
+    this.inputType;
+
+    if(inputType!= undefined && settings != undefined){
+        var json = new UrJson({"inputType":inputType});
+        json.checkType({"inputType":["string"]});
+
+        settings.element = document.createElement("input");
+
+        var tmp = new UrString(inputType);
+        UrInput.call(this, settings, "Ur"+tmp.capitalize());
+        /**
+         * @property inputType
+         * @type {String}
+         * @description Input type, for example "text"
+         */
+        this.inputType = this.element.type = inputType;
+    }
 };
 UrCustomInput.prototype=new UrInput();
 UrCustomInput.prototype.constructor=UrCustomInput;
@@ -1431,11 +1538,15 @@ UrCustomInput.prototype.constructor=UrCustomInput;
  * @constructor
  */
 var UrCustomWidget = function(widgetType, settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement(widgetType);
+    if(widgetType!= undefined && settings != undefined){
+        var json = new UrJson({"widgetType":widgetType});
+        json.checkType({"widgetType":["string"]});
 
-    var tmp = new UrString(widgetType);
-    UrWidget.call(this, settings, "Ur"+tmp.capitalize());
+        settings.element = document.createElement(widgetType);
+
+        var tmp = new UrString(widgetType);
+        UrWidget.call(this, settings, "Ur"+tmp.capitalize());
+    }
 };
 UrCustomWidget.prototype=new UrWidget();
 UrCustomWidget.prototype.constructor=UrCustomWidget;
@@ -1450,7 +1561,7 @@ UrCustomWidget.prototype.constructor=UrCustomWidget;
  *      @param {string}         [settings.id] HTML attribute "id" of UrDataTable
  *      @param {string}         [settings.className] HTML attribute "class" of UrDataTable
  *      @param {Object|UrStyle} [settings.style] Style of UrDataTable
- *      @param {Array}  settings.datas Datas for display in UrDataTable
+ *      @param {Array}          settings.datas Datas for display in UrDataTable
  *      @param {Object}         settings.description Description object used to create UrDataTable
  * @example
  *      var body = document.getElementsByTagName("body")[0];
@@ -1476,28 +1587,6 @@ UrCustomWidget.prototype.constructor=UrCustomWidget;
  */
 var UrDataTable = function(settings){
     /**
-     * Set the Thead of the HTML table of UrDataTable
-     * @method head
-     * @for UrDataTable
-     * @private
-     */
-    head=function(){
-        that.head = new UrCustomWidget("thead", {"parent":that});
-        var tr = new UrCustomWidget("tr", {"parent":that.head});
-        for(var i in that.description)
-            if(that.description[i]["hide"] == undefined){
-                var th = new UrCustomWidget("th", {"parent":tr,"html":that.description[i]["title"]});
-        }
-    };
-    /**
-     * @property that
-     * @type UrDataTable
-     * @private
-     */
-    var that = this;
-
-    if(settings == undefined) settings = {};
-    /**
      * @property head
      * @type UrCustomWidget
      * @description Thead of the HTML table of UrDataTable
@@ -1514,21 +1603,50 @@ var UrDataTable = function(settings){
      * @type Array
      * @description Array of each Tr of the HTML table of UrDataTable
      */
-    this.lines = [];
+    this.lines;
     /**
      * @property description
      * @type Object
      * @description Array Description object used to create UrDataTable
      */
-    this.description = settings.description;
+    this.description;
 
-    if(settings.datas != undefined && settings.datas instanceof Array && settings.datas.length > 0){
-        settings.element = document.createElement("table");
-        UrWidget.call(this, settings, "UrDataTable");
-        head();
-        this.body = new UrCustomWidget("tbody", {"parent":this});
-        this.add(settings.datas);
-    }
+    if(settings != undefined){
+        /**
+         * @property that
+         * @type UrDataTable
+         * @private
+         */
+        var that = this;
+        /**
+         * Set the Thead of the HTML table of UrDataTable
+         * @method head
+         * @for UrDataTable
+         * @private
+         */
+        head=function(){
+            that.head = new UrCustomWidget("thead", {"parent":that});
+            var tr = new UrCustomWidget("tr", {"parent":that.head});
+            for(var i in that.description)
+                if(that.description[i]["hide"] == undefined){
+                    var th = new UrCustomWidget("th", {"parent":tr,"html":that.description[i]["title"]});
+                }
+        };
+
+        var json = new UrJson(settings);
+        json.checkType({"datas":[Array],"description":[Object]});
+
+        this.lines = [];
+        this.description = settings.description;
+
+        if(settings.datas != undefined && settings.datas instanceof Array && settings.datas.length > 0){
+            settings.element = document.createElement("table");
+            UrWidget.call(this, settings, "UrDataTable");
+            head();
+            this.body = new UrCustomWidget("tbody", {"parent":this});
+            this.add(settings.datas);
+        }
+    };
 };
 UrDataTable.prototype=new UrWidget();
 UrDataTable.prototype.constructor=UrDataTable;
@@ -1614,8 +1732,6 @@ UrDataTable.prototype.getLines = function(){ return this.lines; };
  * @constructor
  */
 var UrForm = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("form");
     /**
      * @property method
      * @type String
@@ -1641,11 +1757,18 @@ var UrForm = function(settings){
      */
     this.formElement = {};
 
-    UrWidget.call(this, settings, "UrForm");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"method":["string"],"action":["string"],"enctype":["string"]});
 
-    this.setMethod(settings.method);
-    this.setAction(settings.action);
-    this.setEnctype(settings.enctype);
+        settings.element = document.createElement("form");
+
+        UrWidget.call(this, settings, "UrForm");
+
+        this.setMethod(settings.method);
+        this.setAction(settings.action);
+        this.setEnctype(settings.enctype);
+    }
 };
 UrForm.prototype=new UrWidget();
 UrForm.prototype.constructor=UrForm;
@@ -1769,14 +1892,13 @@ UrFragment.prototype.constructor=UrFragment;
  *      var image = new UrImage({
  *          "parent":body,
  *          "src":"your-link/your-image.png",
+ *          "alt":"ALT",
  *          "width":50,
  *          "height":50
  *      });
  * @constructor
  */
 var UrImage = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("img");
     /**
      * @property src
      * @type String
@@ -1802,12 +1924,18 @@ var UrImage = function(settings){
      */
     this.height;
 
-    UrDom.call(this, "UrImage", settings);
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"src":["string"],"alt":["string","number"],"width":["number"],"height":["number"]});
 
-    this.setSrc(settings.src);
-    this.setAlt(settings.alt);
-    this.setWidth(settings.width);
-    this.setHeight(settings.height);
+        settings.element = document.createElement("img");
+        UrDom.call(this, "UrImage", settings);
+
+        this.setSrc(settings.src);
+        this.setAlt(settings.alt);
+        this.setWidth(settings.width);
+        this.setHeight(settings.height);
+    }
 };
 UrImage.prototype=new UrDom();
 UrImage.prototype.constructor=UrImage;
@@ -1875,11 +2003,12 @@ UrImage.prototype.setHeight = function(height){
  * @constructor
  */
 var UrInputText = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("input");
+    if(settings != undefined){
+        settings.element = document.createElement("input");
 
-    UrInput.call(this, settings, "UrInputText");
-    this.inputType = this.element.type = "text";
+        UrInput.call(this, settings, "UrInputText");
+        this.inputType = this.element.type = "text";
+    }
 };
 UrInputText.prototype=new UrInput();
 UrInputText.prototype.constructor=UrInputText;
@@ -1907,8 +2036,6 @@ UrInputText.prototype.constructor=UrInputText;
  * @constructor
  */
 var UrLabel = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("label");
     /**
      * @property htmlFor
      * @type String
@@ -1916,9 +2043,16 @@ var UrLabel = function(settings){
      */
     this.htmlFor;
 
-    UrWidget.call(this, settings, "UrLabel");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"for":["string","number"]});
 
-    this.setHtmlFor(settings.htmlFor);
+        settings.element = document.createElement("label");
+
+        UrWidget.call(this, settings, "UrLabel");
+
+        this.setHtmlFor(settings.htmlFor);
+    }
 };
 UrLabel.prototype=new UrWidget();
 UrLabel.prototype.constructor=UrLabel;
@@ -1968,18 +2102,25 @@ UrLabel.prototype.getHtmlFor = function(){
  * @constructor
  */
 var UrLine = function(settings){
-    if(settings == undefined) settings = {};
     /**
      * @property parts
      * @type Array
      * @description Parts of UrLine
      */
-    this.parts=[];
+    this.parts;
 
-    UrWidget.call(this, settings, "UrLine");
+    if(settings != undefined){
+        this.parts = [];
 
-    for(var i=0; i<settings.partsNumber; i++)
-        this.parts.push(new UrWidget({"parent":this,"className":settings.partsClassName,"style":settings.partsStyle}));
+        var json = new UrJson(settings);
+        json.checkType({"partsNumber":["number"],"partsClassName":["string"],"partsStyle":[Object,UrStyle]});
+
+        UrWidget.call(this, settings, "UrLine");
+
+        if(settings.partsStyle == undefined) settings.partsStyle = {};
+        for(var i=0; i<settings.partsNumber; i++)
+            this.parts.push(new UrWidget({"parent":this,"className":settings.partsClassName,"style":settings.partsStyle}));
+    }
 };
 UrLine.prototype=new UrWidget();
 UrLine.prototype.constructor=UrLine;
@@ -2018,8 +2159,6 @@ UrLine.prototype.getPart=function(index){
  * @constructor
  */
 var UrLink = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("a");
     /**
      * @property href
      * @type String
@@ -2033,10 +2172,16 @@ var UrLink = function(settings){
      */
     this.target;
 
-    UrWidget.call(this, settings, "UrLink");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"href":["string"],"target":["string"]});
 
-    this.setHref(settings.href);
-    this.setTarget(settings.target);
+        settings.element = document.createElement("a");
+        UrWidget.call(this, settings, "UrLink");
+
+        this.setHref(settings.href);
+        this.setTarget(settings.target);
+    }
 };
 UrLink.prototype=new UrWidget();
 UrLink.prototype.constructor=UrLink;
@@ -2090,38 +2235,27 @@ UrLink.prototype.getTarget = function(){
  *      @param {Object|UrStyle} [settings.style] Style of UrNotification main widget
  *      @param {UrWidget}       [settings.title] UrWidget title of UrNotification
  *      @param {UrWidget}       [settings.text] UrWidget text of UrNotification
- *      @param {String}         [settings.type] Type of UrNotification (default, info, success, warn, error)
+ *      @param {String}         [settings.kind] Kind of UrNotification (default, info, success, warn, error)
  *      @param {Number}         [settings.time] UrNotification display time
  *      @param {UrWidget}       [settings.closeWidget] UrWidget for close UrNotification (for example UrImage).
  * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
  *      var notification = new UrNotification({
- *          "title":"Title example",
- *          "text":"Text example",
+ *          "parent":body,
+ *          "title":new UrWidget({"html":"Title example"}),
+ *          "text":new UrWidget({"html":"Text example"}),
  *          "closeWidget":new UrImage({"src":"your-link/your-image.png","style":{"float":"right","width":"25px","height":"25px"}})
  *       });
  * @constructor
  */
 var UrNotification=function(settings){
     /**
-     * @type {UrNotification}
-     * @private
-     */
-    var _this = this;
-
-    if(settings == undefined) settings = {};
-    if(settings.style == undefined)
-        settings.style = {
-            "float"     :"right",
-            "margin"    :"15px",
-            "border"    :"2px solid white",
-            "color"     :"white"
-        };
-    /**
-     * @property type
+     * @property kind
      * @type String
-     * @description Type of UrNotification
+     * @description Kind of UrNotification
      */
-    this.type;
+    this.kind;
     /**
      * @property time
      * @type Number
@@ -2157,28 +2291,48 @@ var UrNotification=function(settings){
      * @type UrWidget
      * @description Hover state of UrNotification
      */
-    this.hoverState = false;
+    this.hoverState;
 
-    UrWidget.call(this, settings, "UrNotification");
-    this.setType(settings.type);
-    this.setTime(settings.time);
-    this.header = new UrWidget({"parent":this});
-    this.setCloseWidget(settings.close);
-    this.setTitle(settings.title);
-    this.setText(settings.text);
+    if(settings != undefined){
+        /**
+         * @type {UrNotification}
+         * @private
+         */
+        var _this = this;
 
-    this.mouseIn(function(){ _this.hoverState = true; });
-    this.mouseLeave(function(){
-        _this.hoverState = false;
-        _this.remove();
-    });
+        var json = new UrJson(settings);
+        json.checkType({"title":[UrWidget],"text":[UrWidget],"kind":["string"],"time":["number"],"closeWidget":[UrWidget]});
 
-    setTimeout(function(){
-        try{
-            if(_this.hoverState == false)
-                _this.remove();
-        }catch(e){}
-    },_this.time);
+        if(settings.style == undefined)
+            settings.style = {
+                "float"     :"right",
+                "margin"    :"15px",
+                "border"    :"2px solid white"
+            };
+        UrWidget.call(this, settings, "UrNotification");
+
+        this.hoverState = false;
+
+        this.setKind(settings.kind);
+        this.setTime(settings.time);
+        this.header = new UrWidget({"parent":this});
+        this.setCloseWidget(settings.close);
+        this.setTitle(settings.title);
+        this.setText(settings.text);
+
+        this.mouseIn(function(){ _this.hover = true; });
+        this.mouseLeave(function(){
+            _this.hover = false;
+            _this.remove();
+        });
+
+        setTimeout(function(){
+            try{
+                if(_this.hoverState == false)
+                    _this.remove();
+            }catch(e){}
+        },_this.time);
+    }
 };
 UrNotification.prototype=new UrWidget();
 UrNotification.prototype.constructor=UrNotification;
@@ -2186,24 +2340,20 @@ UrNotification.prototype.constructor=UrNotification;
  * Set UrNotification type : modify its background
  * @method setType
  * @for UrNotification
- * @param {String} type
+ * @param {String} kind
  */
-UrNotification.prototype.setType=function(type){
-    this.type = type || "default";
-    if(this.type == "default"){
-        this.getStyle().set("background","#eaeaea");
-        this.getStyle().set("color","black");
-    }
-    if(this.type == "info")
-        this.getStyle().set("background","#50b6d4");
-    if(this.type == "success")
-        this.getStyle().set("background","#55ab55");
-    if(this.type == "warn")
-        this.getStyle().set("background","#fbaf44");
-    if(this.type == "error")
-        this.getStyle().set("background","#ca403a");
-    if(this.type == "inverse")
-        this.getStyle().set("background","#3c3c3c");
+UrNotification.prototype.setKind=function(kind){
+    this.kind = kind || "info";
+    if(this.kind == "default")
+        this.getStyle().set("background","#fcf8e3");
+    if(this.kind == "info")
+        this.getStyle().set("background","lightblue");
+    if(this.kind == "success")
+        this.getStyle().set("background","#dff0d8");
+    if(this.kind == "warn")
+        this.getStyle().set("background","#ebb275");
+    if(this.kind == "error")
+        this.getStyle().set("background","#f2dede");
 };
 /**
  * Set UrNotification time display
@@ -2296,21 +2446,6 @@ UrNotification.prototype.setCloseWidget=function(closeWidget){
  * @constructor
  */
 var UrPopup=function(settings){
-    if(settings == undefined) settings = {};
-    if(settings.style == undefined)
-        settings.style = {
-            "position":"absolute",
-            "left":"50%",
-            "top":"150px",
-            "background":"white",
-            "width":"600px",
-            "margin-left":"-300px"
-        };
-
-    var body = document.getElementsByTagName("body")[0];
-
-    this.body = new UrWidget({"element": body});
-    settings.parent = this.body;
     /**
      * @property bg
      * @type UrWidget
@@ -2336,11 +2471,30 @@ var UrPopup=function(settings){
      */
     this.content;
 
-    this.setBg();
-    UrWidget.call(this, settings, "UrPopup");
-    this.setCloseWidget(settings.closeWidget);
-    this.setModal(settings.modal);
-    this.setContent(settings.content);
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"content":[UrWidget],"closeWidget":[UrDom],"modal":["boolean"]});
+
+        if(settings.style == undefined)
+            settings.style = {
+                "position":"absolute",
+                "left":"50%",
+                "top":"150px",
+                "background":"white",
+                "width":"600px",
+                "margin-left":"-300px"
+            };
+
+        var body = document.getElementsByTagName("body")[0];
+        this.body = new UrWidget({"element": body});
+        settings.parent = this.body;
+
+        this.setBg();
+        UrWidget.call(this, settings, "UrPopup");
+        this.setCloseWidget(settings.closeWidget);
+        this.setModal(settings.modal);
+        this.setContent(settings.content);
+    }
 };
 UrPopup.prototype=new UrWidget();
 UrPopup.prototype.constructor=UrPopup;
@@ -2458,21 +2612,18 @@ UrPopup.prototype.close=function(){
  * @constructor
  */
 var UrProgressBar=function(settings){
-    if(settings == undefined) settings = {};
-    if(settings.style == undefined)
-        settings.style = {"background":"white","height":"5px","width":"0%","position":"fixed","top":"0","left":"0","z-index":"10000"};
     /**
      * @property width
      * @type Number
      * @description Current width of UrProgressBar
      */
-    this.width = 0;
+    this.width;
     /**
      * @property currentVal
      * @type String
      * @description Current value of UrProgressBar
      */
-    this.currentVal = 0;
+    this.currentVal;
     /**
      * @property interval
      * @type Number
@@ -2486,9 +2637,20 @@ var UrProgressBar=function(settings){
      */
     this.speed;
 
-    UrWidget.call(this, settings, "UrProgressBar");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"speed":["number"]});
 
-    this.setSpeed(settings.speed);
+        if(settings.style == undefined)
+            settings.style = {"background":"white","height":"5px","width":"0%","position":"fixed","top":"0","left":"0","z-index":"10000"};
+
+        this.width = 0;
+        this.currentVal = 0;
+
+        UrWidget.call(this, settings, "UrProgressBar");
+
+        this.setSpeed(settings.speed);
+    }
 };
 UrProgressBar.prototype=new UrWidget();
 UrProgressBar.prototype.constructor=UrProgressBar;
@@ -2583,6 +2745,284 @@ UrProgressBar.prototype.done = function(callback){
     });
 };
 /**
+ * The UrTab object create a tab manager.
+ * @class UrTab
+ * @extends UrWidget
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrTab name
+ *      @param {String}         [settings.id] HTML attribute "id" of UrTab main container
+ *      @param {String}         [settings.className] HTML attribute "class" of UrTab main container
+ *      @param {UrWidget}       settings.container UrWidget container for the each tab
+ *      @param {Object|UrStyle} settings.styleActive Style of active tab of UrTab
+ *      @param {Object|UrStyle} settings.styleInactive Style of inactive tab(s) UrTab
+ *      @param {Object|UrStyle} [settings.style] Style of UrTab main container
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var tab = new UrTab({
+*           "parent":container,
+*           "style":{"border-top":"2px solid gray"},
+*           "container":new UrWidget({
+*               "style":{
+*                   "border":"2px solid gray",
+*                   "padding":"25px"
+*                }
+*            }),
+*            "styleActive":{"background":"black","color":"white","cssFloat":"left","styleFloat":"left","cursor":"pointer","padding":"20px","text-align":"center"},
+*            "styleInactive":{"background":"white","color":"black","cssFloat":"left","styleFloat":"left","cursor":"pointer","padding":"20px","text-align":"center"}
+*        });
+ *       tab.add({
+ *          "lib":"TEST TAB 1",
+ *          "content":new UrWidget({
+ *              "html":"CONTENT 1"
+ *          }),
+ *          "active":true
+ *       });
+ *       tab.add({
+ *          "lib":"TEST TAB 2",
+ *          "content":new UrWidget({
+ *              "html":"CONTENT 2"
+ *           }),
+ *           "active":false
+ *        });
+ *        tab.getTabParent().addChild(new UrWidget({
+ *          "style":{
+ *              "clear":"both"
+ *          }
+ *        }));
+ *        tab.tryMakeEqualTabWidth();
+ * @constructor
+ */
+var UrTab=function(settings){
+    /**
+     * @property tab
+     * @type Array<UrWidget>
+     * @description UrTab list of tab
+     */
+    this.tab;
+    /**
+     * @property current
+     * @type Number
+     * @description UrTab current tab
+     */
+    this.current;
+    /**
+     * @property styleActive
+     * @type {Object|UrStyle}
+     * @description Style of active tab of UrTab
+     */
+    this.styleActive;
+    /**
+     * @property styleInactive
+     * @type {Object|UrStyle}
+     * @description Style of inactive tab(s) of UrTab
+     */
+    this.styleInactive;
+    /**
+     * @property tabParent
+     * @type {UrWidget}
+     * @description Parent for each tab ui
+     */
+    this.tabParent;
+    /**
+     * @property container
+     * @type {UrWidget}
+     * @description Container for each tab content of UrTab
+     */
+    this.container;
+
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"container":[UrWidget],"styleActive":[Object,UrStyle],"styleInactive":[Object,UrStyle]});
+
+        UrWidget.call(this, settings, "UrTab");
+
+        this.tab = [];
+        this.tabParent = new UrWidget({"parent":this});
+
+        this.setStyleActive(settings.styleActive);
+        this.setStyleInactive(settings.styleInactive);
+        this.setContainer(settings.container);
+    }
+};
+UrTab.prototype=new UrWidget();
+UrTab.prototype.constructor=UrTab;
+/**
+ * Set container for each tab content of UrTab
+ * @method setContainer
+ * @for UrTab
+ * @param {UrWidget} container
+ */
+UrTab.prototype.setContainer=function(container){
+    this.container = container;
+    if(this.container==undefined)
+        this.container = new UrWidget({});
+    this.addChild(this.container);
+};
+/**
+ * Set style for active tab of UrTab
+ * @method setStyleActive
+ * @for UrTab
+ * @param {Object|UrStyle} styleActive
+ */
+UrTab.prototype.setStyleActive=function(styleActive){
+    if(styleActive == undefined)
+        styleActive = {"background":"black","color":"white","cssFloat":"left","styleFloat":"left","cursor":"pointer","padding":"20px","text-align":"center"};
+    this.styleActive = styleActive;
+    if(this.tab.length > 0)
+        this.setCurrentTab(this.current);
+};
+/**
+ * Set style for inactive tab(s) of UrTab
+ * @method setStyleInactive
+ * @for UrTab
+ * @param {Object|UrStyle} styleInactive
+ */
+UrTab.prototype.setStyleInactive=function(styleInactive){
+    if(styleInactive == undefined)
+        styleInactive = {"background":"white","color":"black","cssFloat":"left","styleFloat":"left","cursor":"pointer","padding":"20px","text-align":"center"}
+    this.styleInactive = styleInactive;
+    if(this.tab.length > 0)
+        this.setCurrentTab(this.current);
+};
+/**
+ * Add a tab in UrTab
+ * @method add
+ * @for UrTab
+ * @param {Object} settings
+ *      @param {String} settings.lib
+ *      @param {UrWidget} settings.content
+ *      @param {Boolean} settings.active
+ */
+UrTab.prototype.add=function(settings){
+    var _this = this;
+    var style = this.styleInactive;
+    if(settings.active)
+        style = this.styleActive;
+
+    var tab = new UrWidget({
+        "parent":this.tabParent,
+        "style":style,
+        "html":settings.lib
+    });
+    var index = _this.tab.length;
+    this.tab.push({"lib":settings.lib,"tab":tab,"content":settings.content});
+
+    this.container.addChild(settings.content);
+    if(settings.active == false || settings.active == undefined)
+        settings.content.getStyle().set("display","none");
+    if(settings.active == true)
+        this.current = index;
+
+    tab.click(function(){
+        _this.setCurrentTab(index);
+    });
+};
+/**
+ * Get UrWidget tab parent
+ * @method getTabParent
+ * @for UrTab
+ * @returns {UrWidget}
+ */
+UrTab.prototype.getTabParent=function(){
+    return this.tabParent;
+};
+/**
+ * Get current tab index
+ * @method getCurrent
+ * @for UrTab
+ * @returns {Number}
+ */
+UrTab.prototype.getCurrent=function(){
+    return this.current;
+};
+/**
+ * Get current tab
+ * @method getCurrentTab
+ * @for UrTab
+ * @returns {UrWidget}
+ */
+UrTab.prototype.getCurrentTab=function(){
+    return this.tab[this.current]["tab"];
+};
+/**
+ * Get current tab content
+ * @method getCurrentTabContent
+ * @for UrTab
+ * @returns {UrWidget}
+ */
+UrTab.prototype.getCurrentTabContent=function(){
+    return this.tab[this.current]["content"];
+};
+/**
+ * Get current tab lib
+ * @method getCurrentTabLib
+ * @for UrTab
+ * @returns {UrWidget}
+ */
+UrTab.prototype.getCurrentTabLib=function(){
+    return this.tab[this.current]["lib"];
+};
+/**
+ * Get container of UrTab
+ * @method getContainer
+ * @for UrTab
+ * @returns {UrWidget}
+ */
+UrTab.prototype.getContainer=function(){
+    return this.container;
+};
+/**
+ * Remove one tab of UrTab
+ * @method removeTab
+ * @param {Number} index
+ */
+UrTab.prototype.removeTab=function(index){
+    if(this.tab[index] != undefined){
+        this.tab[index]["tab"].remove();
+        this.tab[index]["content"].remove();
+
+        this.tab[index] = undefined;
+    }
+};
+/**
+ * Remove all tab of UrTab
+ * @method removeAllTab
+ */
+UrTab.prototype.removeAllTab=function(){
+    for(var i = 0; i < this.tab; i++){
+        this.removeTab(i);
+    }
+};
+/**
+ * Get current tab
+ * @method setCurrentTab
+ * @for UrTab
+ * @param {Number} index
+ */
+UrTab.prototype.setCurrentTab=function(index){
+    for(var i=0;i<this.tab.length;i++) {
+        if(this.tab[i]!=undefined) {
+            this.tab[i]["tab"].setStyle(this.styleInactive);
+            this.tab[i]["content"].getStyle().set("display", "none");
+        }
+    }
+
+    this.tab[index]["tab"].setStyle(this.styleActive);
+    this.tab[index]["content"].getStyle().set("display","block");
+    this.current = index;
+};
+UrTab.prototype.tryMakeEqualTabWidth=function(){
+    for(var i=0;i<this.tab.length;i++){
+        this.tab[i]["tab"].getStyle().set("margin-left","0");
+        this.tab[i]["tab"].getStyle().set("margin-right","0");
+        this.tab[i]["tab"].getStyle().set("padding-left","0");
+        this.tab[i]["tab"].getStyle().set("padding-right","0");
+        this.tab[i]["tab"].getStyle().set("width",100/this.tab.length+"%");
+    }
+};
+/**
  * The UrTable object create a table.
  * @class UrTable
  * @extends UrWidget
@@ -2616,23 +3056,6 @@ UrProgressBar.prototype.done = function(callback){
  * @constructor
  */
 var UrTable=function(settings){
-    head=function(){
-        if (settings.head != undefined) {
-            that.head = new UrCustomWidget("thead", {"parent":that});
-            var tr = new UrCustomWidget("tr", {"parent":that.head});
-
-            for(var i=0; i<settings.head.length;i++)
-                var th = new UrCustomWidget("th", {"parent":tr,"html":settings.head[i]});
-        }
-    };
-    /**
-     * @property that
-     * @type UrTable
-     * @private
-     */
-    var that = this;
-
-    if(settings == undefined) settings = {};
     /**
      * @property head
      * @type UrCustomWidget
@@ -2652,11 +3075,33 @@ var UrTable=function(settings){
      */
     this.lines = [];
 
-    this.setColumnNumber(settings.columnNumber);
-    settings.element = document.createElement("table");
-    UrWidget.call(this, settings, "UrTable");
-    head();
-    this.body = new UrCustomWidget("tbody", {"parent":this});
+    if(settings != undefined){
+        /**
+         * @property that
+         * @type UrDataTable
+         * @private
+         */
+        var that = this;
+
+        head=function(){
+            if (settings.head != undefined) {
+                that.head = new UrCustomWidget("thead", {"parent":that});
+                var tr = new UrCustomWidget("tr", {"parent":that.head});
+
+                for(var i=0; i<settings.head.length;i++)
+                    var th = new UrCustomWidget("th", {"parent":tr,"html":settings.head[i]});
+            }
+        };
+
+        var json = new UrJson(settings);
+        json.checkType({"columnNumber":["number"],"head":[Array]});
+
+        this.setColumnNumber(settings.columnNumber);
+        settings.element = document.createElement("table");
+        UrWidget.call(this, settings, "UrTable");
+        head();
+        this.body = new UrCustomWidget("tbody", {"parent":this});
+    }
 };
 UrTable.prototype=new UrWidget();
 UrTable.prototype.constructor=UrTable;
@@ -2724,8 +3169,6 @@ UrTable.prototype.getLines = function(){ return this.lines; };
  * @constructor
  */
 var UrTextarea = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("textarea");
     /**
      * @property row
      * @type Number
@@ -2739,10 +3182,16 @@ var UrTextarea = function(settings){
      */
     this.cols;
 
-    UrInput.call(this, settings, "UrTextarea");
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"rows":["number"],"cols":["number"]});
 
-    this.setRows(settings.rows);
-    this.setCols(settings.cols);
+        settings.element = document.createElement("textarea");
+        UrInput.call(this, settings, "UrTextarea");
+
+        this.setRows(settings.rows);
+        this.setCols(settings.cols);
+    }
 };
 UrTextarea.prototype=new UrInput();
 UrTextarea.prototype.constructor=UrTextarea;
@@ -2767,3 +3216,238 @@ UrTextarea.prototype.setCols = function(cols){
     if(this.cols != undefined) this.element.cols = this.cols;
 };
 
+/**
+ * The UrTypeahead object create a typeahead
+ * @class UrTypeahead
+ * @extends UrWidget
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrTypeahead name
+ *      @param {String}         [settings.id] HTML attribute "id" of UrTypeahead
+ *      @param {String}         [settings.className] HTML attribute "class" of UrTypeahead
+ *      @param {Object|UrStyle} [settings.style] Style of UrTypeahead
+ *      @param {Array}          settings.data Data of UrTypeahead  Must be like [{"id":0,"lib":"Line 1"},{"id":1,"lib":"Line 2"}]
+ *      @param {Array}          settings.callbackEnter Callback called when "enter" is pressed on keyboard
+ *      @param {Array}          settings.callbackClick Callback called when user click on list element
+ *      @param {Object|UrStyle} [settings.styleList] Style of UrTypeahead list
+ * @example
+
+ * @constructor
+ */
+var UrTypeahead=function(settings){
+    /**
+     * @property data
+     * @type {Object}
+     * @description Data of UrTypeahead.
+     */
+    this.data;
+    /**
+     * @property dataLib
+     * @type Array<String>
+     * @description Libs of data
+     */
+    this.dataLib;
+    /**
+     * @property list
+     * @type UrWidget
+     * @description Data of UrTypeahead
+     */
+    this.list;
+    /**
+     * @property callbackClick
+     * @type Function
+     * @description Function called when an element was clicked in list
+     */
+    this.callbackClick;
+    /**
+     * @property callbackEnter
+     * @type Function
+     * @description Function called when "enter" was pressed on keyboard
+     */
+    this.callbackEnter;
+    /**
+     * @property focused
+     * @type boolean
+     * @description UrTypeahead has the focus ?
+     */
+    this.focused;
+
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"data":[Array],"callbackEnter":[Function],"callbackClick":[Function],"styleList":[Object,UrStyle]});
+
+        var _this = this;
+        this.focused = false;
+
+        if(settings.style == undefined)
+            settings.style = {
+                "background":"white",
+                "border-bottom":"1px solid black",
+                "height":"25px"
+            };
+
+        UrWidget.call(this, settings, "UrTypeahead");
+
+        this.setData(settings.data);
+        this.setList(this.dataId,this.dataLib);
+        this.setListStyle(settings.styleList);
+        this.setCallbackClick(settings.callbackClick);
+        this.setCallbackEnter(settings.callbackEnter);
+
+        this.element.contentEditable = true;
+        this.focus(function(){
+            _this.focused = true;
+            _this.list.getStyle().set("display","block");
+        });
+        this.keyDown(function(e){
+            if(e.keyCode == 13) {
+                e.preventDefault();
+                _this.callbackEnter(_this.getHtml());
+            }
+            if (e.keyCode == 27 && _this.focused == true)
+                _this.getElement().blur();
+        });
+        this.keyUp(function(e){
+            if(e.keyCode == 13)
+                e.preventDefault();
+            else{
+                _this.list.getStyle().set("display","block");
+                _this.search();
+            }
+        });
+        this.blur(function(){
+            _this.focused = false;
+            setTimeout(function(){
+                _this.list.getStyle().set("display","none");
+            },200);
+        });
+    }
+};
+UrTypeahead.prototype=new UrWidget();
+UrTypeahead.prototype.constructor=UrTypeahead;
+/**
+ * Set datas of UrTypeahead
+ * @method setData
+ * @for UrTypeahead
+ * @param {Array<Object>} data
+ */
+UrTypeahead.prototype.setData=function(data){
+    this.data       = {};
+    this.dataId     = [];
+    this.dataLib    = [];
+
+    if(data != undefined){
+        for(var i=0;i<data.length;i++){
+            this.data[data[i]["id"]] = data[i]["lib"];
+            this.dataId.push(data[i]["id"]);
+            this.dataLib.push(data[i]["lib"]);
+        }
+    }
+};
+/**
+ * Creates list UrWidget
+ * @method setList
+ * @for UrTypeahead
+ * @param {Array<Number>} dataId
+ * @param {Array<String>} dataLib
+ */
+UrTypeahead.prototype.setList=function(dataId,dataLib){
+    var _this = this;
+
+    if(this.list==undefined)
+        this.list=new UrWidget({
+            "parent":this.parent
+        });
+    else
+        this.list.setHtml("");
+
+    for(var i=0;i<dataLib.length;i++){
+        (function(index){
+            var element = new UrWidget({
+                "parent":_this.list,
+                "html":dataLib[i]
+            });
+
+            element.click(function(){
+                _this.setHtml(dataLib[index]);
+                _this.callbackClick(dataId[index],dataLib[index]);
+                _this.search(dataLib[index]);
+            });
+        }(i));
+    }
+};
+/**
+ * Set style of list UrWidget
+ * @method setListStyle
+ * @for UrTypeahead
+ * @param {Object|UrStyle} style
+ */
+UrTypeahead.prototype.setListStyle=function(style){
+    if(style == undefined)
+        style = {
+            "position":"absolute",
+            "background":"white",
+            "border":"1px solid #eee",
+            "cursor":"pointer"
+        };
+
+    this.list.setStyle(style);
+    this.list.getStyle().set("width",this.element.offsetWidth+"px");
+    this.list.getStyle().set("display","none");
+};
+/**
+ * Set function called when an element was clicked in list
+ * @method setCallbackClick
+ * @for UrTypeahead
+ * @param {Function} foo
+ */
+UrTypeahead.prototype.setCallbackClick=function(foo){
+    if(foo==undefined)
+        this.callbackClick = function(){};
+    else
+        this.callbackClick = foo;
+};
+/**
+ * Set function called when "enter" was pressed on keyboard
+ * @method setCallbackEnter
+ * @for UrTypeahead
+ * @param {Function} foo
+ */
+UrTypeahead.prototype.setCallbackEnter=function(foo){
+    if(foo==undefined)
+        this.callbackEnter = function(){};
+    else
+        this.callbackEnter = foo;
+};
+/**
+ * Search a word in data
+ * @method search
+ * @for UrTypeahead
+ */
+UrTypeahead.prototype.search=function(){
+    if(this.getHtml()=="")
+        this.setList(this.dataId,this.dataLib);
+    else{
+        var dataId = [];
+        var dataLib = [];
+
+        var search = new RegExp(this.getElement().textContent.trim(),"i");
+
+        for(var i = 0; i < this.dataLib.length; i++){
+            if(search.test(this.dataLib[i])){
+                dataId.push(this.dataId[i]);
+                dataLib.push(this.dataLib[i]);
+            }
+        }
+        this.setList(dataId,dataLib);
+    }
+};
+/**
+ * Get list UrWidget
+ * @method getList
+ * @for UrTypeahead
+ * @return {UrWidget}
+ */
+UrTypeahead.prototype.getList=function(){
+    return this.list;
+};

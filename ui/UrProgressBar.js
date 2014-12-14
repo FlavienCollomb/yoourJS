@@ -19,21 +19,18 @@
  * @constructor
  */
 var UrProgressBar=function(settings){
-    if(settings == undefined) settings = {};
-    if(settings.style == undefined)
-        settings.style = {"background":"white","height":"5px","width":"0%","position":"fixed","top":"0","left":"0","z-index":"10000"};
     /**
      * @property width
      * @type Number
      * @description Current width of UrProgressBar
      */
-    this.width = 0;
+    this.width;
     /**
      * @property currentVal
      * @type String
      * @description Current value of UrProgressBar
      */
-    this.currentVal = 0;
+    this.currentVal;
     /**
      * @property interval
      * @type Number
@@ -47,9 +44,20 @@ var UrProgressBar=function(settings){
      */
     this.speed;
 
-    UrWidget.call(this, settings, "UrProgressBar");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"speed":["number"]});
 
-    this.setSpeed(settings.speed);
+        if(settings.style == undefined)
+            settings.style = {"background":"white","height":"5px","width":"0%","position":"fixed","top":"0","left":"0","z-index":"10000"};
+
+        this.width = 0;
+        this.currentVal = 0;
+
+        UrWidget.call(this, settings, "UrProgressBar");
+
+        this.setSpeed(settings.speed);
+    }
 };
 UrProgressBar.prototype=new UrWidget();
 UrProgressBar.prototype.constructor=UrProgressBar;

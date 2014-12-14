@@ -17,8 +17,6 @@
  * @constructor
  */
 var UrInput = function(settings, type){
-    if(settings == undefined) settings = {};
-	UrField.call(this, settings, type);
     /**
      * @property placeholder
      * @type {String}
@@ -32,7 +30,13 @@ var UrInput = function(settings, type){
      */
     this.inputType;
 
-    this.setPlaceholder(settings.placeholder);
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"placeholder":["string","number"]});
+
+        UrField.call(this, settings, type);
+        this.setPlaceholder(settings.placeholder);
+    }
 };
 UrInput.prototype=new UrField();
 UrInput.prototype.constructor=UrInput;

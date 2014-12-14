@@ -22,8 +22,6 @@
  * @constructor
  */
 var UrLabel = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("label");
     /**
      * @property htmlFor
      * @type String
@@ -31,9 +29,16 @@ var UrLabel = function(settings){
      */
     this.htmlFor;
 
-    UrWidget.call(this, settings, "UrLabel");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"for":["string","number"]});
 
-    this.setHtmlFor(settings.htmlFor);
+        settings.element = document.createElement("label");
+
+        UrWidget.call(this, settings, "UrLabel");
+
+        this.setHtmlFor(settings.htmlFor);
+    }
 };
 UrLabel.prototype=new UrWidget();
 UrLabel.prototype.constructor=UrLabel;

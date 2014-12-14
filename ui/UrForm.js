@@ -27,8 +27,6 @@
  * @constructor
  */
 var UrForm = function(settings){
-    if(settings == undefined) settings = {};
-    settings.element = document.createElement("form");
     /**
      * @property method
      * @type String
@@ -54,11 +52,18 @@ var UrForm = function(settings){
      */
     this.formElement = {};
 
-    UrWidget.call(this, settings, "UrForm");
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"method":["string"],"action":["string"],"enctype":["string"]});
 
-    this.setMethod(settings.method);
-    this.setAction(settings.action);
-    this.setEnctype(settings.enctype);
+        settings.element = document.createElement("form");
+
+        UrWidget.call(this, settings, "UrForm");
+
+        this.setMethod(settings.method);
+        this.setAction(settings.action);
+        this.setEnctype(settings.enctype);
+    }
 };
 UrForm.prototype=new UrWidget();
 UrForm.prototype.constructor=UrForm;

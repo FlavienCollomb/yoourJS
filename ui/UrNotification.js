@@ -10,38 +10,27 @@
  *      @param {Object|UrStyle} [settings.style] Style of UrNotification main widget
  *      @param {UrWidget}       [settings.title] UrWidget title of UrNotification
  *      @param {UrWidget}       [settings.text] UrWidget text of UrNotification
- *      @param {String}         [settings.type] Type of UrNotification (default, info, success, warn, error)
+ *      @param {String}         [settings.kind] Kind of UrNotification (default, info, success, warn, error)
  *      @param {Number}         [settings.time] UrNotification display time
  *      @param {UrWidget}       [settings.closeWidget] UrWidget for close UrNotification (for example UrImage).
  * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
  *      var notification = new UrNotification({
- *          "title":"Title example",
- *          "text":"Text example",
+ *          "parent":body,
+ *          "title":new UrWidget({"html":"Title example"}),
+ *          "text":new UrWidget({"html":"Text example"}),
  *          "closeWidget":new UrImage({"src":"your-link/your-image.png","style":{"float":"right","width":"25px","height":"25px"}})
  *       });
  * @constructor
  */
 var UrNotification=function(settings){
     /**
-     * @type {UrNotification}
-     * @private
-     */
-    var _this = this;
-
-    if(settings == undefined) settings = {};
-    if(settings.style == undefined)
-        settings.style = {
-            "float"     :"right",
-            "margin"    :"15px",
-            "border"    :"2px solid white",
-            "color"     :"white"
-        };
-    /**
-     * @property type
+     * @property kind
      * @type String
-     * @description Type of UrNotification
+     * @description Kind of UrNotification
      */
-    this.type;
+    this.kind;
     /**
      * @property time
      * @type Number
@@ -77,28 +66,48 @@ var UrNotification=function(settings){
      * @type UrWidget
      * @description Hover state of UrNotification
      */
-    this.hoverState = false;
+    this.hoverState;
 
-    UrWidget.call(this, settings, "UrNotification");
-    this.setType(settings.type);
-    this.setTime(settings.time);
-    this.header = new UrWidget({"parent":this});
-    this.setCloseWidget(settings.close);
-    this.setTitle(settings.title);
-    this.setText(settings.text);
+    if(settings != undefined){
+        /**
+         * @type {UrNotification}
+         * @private
+         */
+        var _this = this;
 
-    this.mouseIn(function(){ _this.hoverState = true; });
-    this.mouseLeave(function(){
-        _this.hoverState = false;
-        _this.remove();
-    });
+        var json = new UrJson(settings);
+        json.checkType({"title":[UrWidget],"text":[UrWidget],"kind":["string"],"time":["number"],"closeWidget":[UrWidget]});
 
-    setTimeout(function(){
-        try{
-            if(_this.hoverState == false)
-                _this.remove();
-        }catch(e){}
-    },_this.time);
+        if(settings.style == undefined)
+            settings.style = {
+                "float"     :"right",
+                "margin"    :"15px",
+                "border"    :"2px solid white"
+            };
+        UrWidget.call(this, settings, "UrNotification");
+
+        this.hoverState = false;
+
+        this.setKind(settings.kind);
+        this.setTime(settings.time);
+        this.header = new UrWidget({"parent":this});
+        this.setCloseWidget(settings.close);
+        this.setTitle(settings.title);
+        this.setText(settings.text);
+
+        this.mouseIn(function(){ _this.hover = true; });
+        this.mouseLeave(function(){
+            _this.hover = false;
+            _this.remove();
+        });
+
+        setTimeout(function(){
+            try{
+                if(_this.hoverState == false)
+                    _this.remove();
+            }catch(e){}
+        },_this.time);
+    }
 };
 UrNotification.prototype=new UrWidget();
 UrNotification.prototype.constructor=UrNotification;
@@ -106,24 +115,20 @@ UrNotification.prototype.constructor=UrNotification;
  * Set UrNotification type : modify its background
  * @method setType
  * @for UrNotification
- * @param {String} type
+ * @param {String} kind
  */
-UrNotification.prototype.setType=function(type){
-    this.type = type || "default";
-    if(this.type == "default"){
-        this.getStyle().set("background","#eaeaea");
-        this.getStyle().set("color","black");
-    }
-    if(this.type == "info")
-        this.getStyle().set("background","#50b6d4");
-    if(this.type == "success")
-        this.getStyle().set("background","#55ab55");
-    if(this.type == "warn")
-        this.getStyle().set("background","#fbaf44");
-    if(this.type == "error")
-        this.getStyle().set("background","#ca403a");
-    if(this.type == "inverse")
-        this.getStyle().set("background","#3c3c3c");
+UrNotification.prototype.setKind=function(kind){
+    this.kind = kind || "info";
+    if(this.kind == "default")
+        this.getStyle().set("background","#fcf8e3");
+    if(this.kind == "info")
+        this.getStyle().set("background","lightblue");
+    if(this.kind == "success")
+        this.getStyle().set("background","#dff0d8");
+    if(this.kind == "warn")
+        this.getStyle().set("background","#ebb275");
+    if(this.kind == "error")
+        this.getStyle().set("background","#f2dede");
 };
 /**
  * Set UrNotification time display

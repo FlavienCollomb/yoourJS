@@ -31,10 +31,6 @@
  * @constructor
  */
 var UrWidget = function(settings, type){
-    if(type == "" || type == undefined) type = "UrWidget";
-    if(settings == undefined) settings = {};
-    UrDom.call(this, type, settings);
-
     /**
      * @property html
      * @type String
@@ -46,21 +42,31 @@ var UrWidget = function(settings, type){
      * @type Array
      * @description Children added in UrWidget
      */
-    this.children = [];
-    /**
-     * @property children.types
-     * @type Object
-     * @description Children added in UrWidget by type
-     */
-    this.children["types"] = {};
-    /**
-     * @property children.names
-     * @type Object
-     * @description Children added in UrWidget by name
-     */
-    this.children["names"] = {};
+    this.children;
 
-    this.setHtml(settings.html);
+    if(settings!=undefined){
+        this.children = [];
+        /**
+         * @property children.types
+         * @type Object
+         * @description Children added in UrWidget by type
+         */
+        this.children["types"] = {};
+        /**
+         * @property children.names
+         * @type Object
+         * @description Children added in UrWidget by name
+         */
+        this.children["names"] = {};
+
+        var json = new UrJson(settings);
+        json.checkType({"html":["string","number"]});
+
+        if(type == "" || type == undefined) type = "UrWidget";
+        UrDom.call(this, type, settings);
+
+        this.setHtml(settings.html);
+    }
 };
 UrWidget.prototype=new UrDom();
 UrWidget.prototype.constructor=UrWidget;

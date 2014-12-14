@@ -49,3 +49,13 @@ UrString.prototype.toCamelCase = function(separator){
     }
     return this.str;
 };
+/**
+ * Create CamelCase text thanks a separator
+ * @method toCamelCase
+ * @for UrString
+ * @param {String} separator
+ * @return {String}
+ */
+UrString.prototype.htmlEntities = function(){
+
+};

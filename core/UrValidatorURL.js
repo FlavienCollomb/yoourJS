@@ -14,12 +14,13 @@
  * @constructor
  */
 var UrValidatorURL = function(settings){
-    if(settings == undefined) settings = {};
-    settings["pattern"] = "(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)";
-    settings["modifiers"] = "i";
-    settings["type"] = "UrValidatorURL";
+    if(settings!=undefined){
+        settings["pattern"] = "(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)";
+        settings["modifiers"] = "i";
+        settings["type"] = "UrValidatorURL";
 
-    UrValidatorRegExp.call(this, settings);
+        UrValidatorRegExp.call(this, settings);
+    }
 };
 UrValidatorURL.prototype=new UrValidatorRegExp();
 UrValidatorURL.prototype.constructor=UrValidatorURL;
