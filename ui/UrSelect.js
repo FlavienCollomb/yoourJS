@@ -1,7 +1,7 @@
 /**
  * The UrSelect is used to construct a HTML select
  * @class UrSelect
- * @extends UrInput
+ * @extends UrWidget
  * @author Flavien Collomb
  * @param {Object} settings
  *      @param {String}             [settings.name] UrSelect name

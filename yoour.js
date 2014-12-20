@@ -1135,7 +1135,7 @@ UrInput.prototype.getPlaceholder = function(){
  */
 
 /**
- * The UrDownload class create an iframe to force download
+ * The UrDownload object is used to force a download
  * @class UrDownload
  * @extends UrObject
  * @author Flavien Collomb
@@ -2625,7 +2625,7 @@ UrNotification.prototype.setCloseWidget=function(closeWidget){
     this.addChild(this.closeWidget);
 };
 /**
- * The UrOption object create an option for select
+ * The UrOption object creates an option for UrSelect
  * @class UrOption
  * @extends UrWidget
  * @author Flavien Collomb
@@ -3006,7 +3006,7 @@ UrProgressBar.prototype.done = function(callback){
 /**
  * The UrSelect is used to construct a HTML select
  * @class UrSelect
- * @extends UrInput
+ * @extends UrWidget
  * @author Flavien Collomb
  * @param {Object} settings
  *      @param {String}             [settings.name] UrSelect name
