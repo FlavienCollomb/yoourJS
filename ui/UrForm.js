@@ -79,7 +79,14 @@ UrForm.prototype.add = function(element,parent){
         this.addChild(element);
     else
         parent.addChild(element);
-    this.formElement[element.getName()] = element;
+
+    if(element instanceof UrInputRadio || element instanceof UrInputCheckbox){
+        if(this.formElement[element.getName()] == undefined)
+            this.formElement[element.getName()] = [];
+        this.formElement[element.getName()].push(element);
+    }
+    else
+        this.formElement[element.getName()] = element;
 };
 /**
  * Set method of UrForm
@@ -131,10 +138,19 @@ UrForm.prototype.getFormElement=function(){
  */
 UrForm.prototype.serialize = function(){
     var tmp = {};
-    for(i in this.formElement)
-        tmp[i] = this.formElement[i].getValue();
+    for(i in this.formElement){
+        if(this.formElement[i] instanceof Array){
+            tmp[i] = [];
+            for(var j=0; j<this.formElement[i].length; j++)
+                if(this.formElement[i][j].getElement().checked)
+                    tmp[i].push(this.formElement[i][j].getValue());
+        }
+        else
+            tmp[i] = this.formElement[i].getValue();
+    }
+
     return tmp;
-}
+};
 /**
  * Add event on submit
  * @method submit

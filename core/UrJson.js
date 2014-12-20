@@ -1,9 +1,4 @@
 /**
- * The core module contains core non-GUI functionality.
- * @module core
- */
-
-/**
  * The UrJson class provides an interface for JSON
  * @class UrJson
  * @extends UrObject
@@ -15,7 +10,7 @@
  * @constructor
  */
 var UrJson = function(json, name){
-    if(!json instanceof  Object)
+    if(!json instanceof Object)
         throw new TypeError("UrJson first attribute 'json' must be an {}");
 
     UrObject.call(this, "UrJson", name);

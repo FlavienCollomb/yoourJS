@@ -65,7 +65,6 @@ UrField.prototype.constructor=UrField;
  * @param {string} name
  */
 UrField.prototype.setFieldName = function(name){
-    if(name!=undefined)
     this.element.name = name;
 };
 /**

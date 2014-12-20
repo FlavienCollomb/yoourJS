@@ -326,11 +326,6 @@ UrString.prototype.htmlEntities = function(){
 
 };
 /**
- * The core module contains core non-GUI functionality.
- * @module core
- */
-
-/**
  * The UrJson class provides an interface for JSON
  * @class UrJson
  * @extends UrObject
@@ -342,7 +337,7 @@ UrString.prototype.htmlEntities = function(){
  * @constructor
  */
 var UrJson = function(json, name){
-    if(!json instanceof  Object)
+    if(!json instanceof Object)
         throw new TypeError("UrJson first attribute 'json' must be an {}");
 
     UrObject.call(this, "UrJson", name);
@@ -984,7 +979,6 @@ UrField.prototype.constructor=UrField;
  * @param {string} name
  */
 UrField.prototype.setFieldName = function(name){
-    if(name!=undefined)
     this.element.name = name;
 };
 /**
@@ -1134,6 +1128,64 @@ UrInput.prototype.setPlaceholder = function(placeholder){
  */
 UrInput.prototype.getPlaceholder = function(){
     return this.placeholder;
+};
+/**
+ * The core module contains core non-GUI functionality.
+ * @module core
+ */
+
+/**
+ * The UrDownload class create an iframe to force download
+ * @class UrDownload
+ * @extends UrObject
+ * @author Flavien Collomb
+ * @param {string} path Path of file to download
+ * @param {string} [name] UrDownload name
+ * @example
+ *      var dl = new UrDownload("test.pdf");
+ *      dl.go();
+ * @constructor
+ */
+var UrDownload = function(path,name){
+    /**
+     * @property path
+     * @type string
+     * @description Path of file to download
+     */
+    this.path;
+
+    if(path != undefined){
+        this.path = path;
+
+        var json = new UrJson({"path":path});
+        json.checkType({"path":["string"]});
+
+        UrObject.call(this, "UrDownload", name);
+    }
+};
+UrDownload.prototype=new UrObject();
+UrDownload.prototype.constructor=UrDownload;
+/**
+ * Launch download
+ * @method go
+ * @for UrDownload
+ */
+UrDownload.prototype.go = function(){
+    var extension = this.path.split('.').pop();
+
+    if(extension == "png" || extension == "jpg" || extension == "jpeg" || extension == "gif" || extension == "bmp" || extension == "pdf" || extension == "txt")
+        window.open(this.path);
+    else{
+        var body = document.getElementsByTagName("body")[0];
+        body = new UrWidget({"element": body});
+
+        var iframe = new UrIFrame({
+            "parent":body,
+            "style":{ "display":"none" },
+            "src":this.path
+        });
+        setTimeout(function(){iframe.remove()},100);
+    }
 };
 /**
  * The UrNavigation object let you manage your website navigation thanks JavaScript. Must be created once!
@@ -1784,7 +1836,14 @@ UrForm.prototype.add = function(element,parent){
         this.addChild(element);
     else
         parent.addChild(element);
-    this.formElement[element.getName()] = element;
+
+    if(element instanceof UrInputRadio || element instanceof UrInputCheckbox){
+        if(this.formElement[element.getName()] == undefined)
+            this.formElement[element.getName()] = [];
+        this.formElement[element.getName()].push(element);
+    }
+    else
+        this.formElement[element.getName()] = element;
 };
 /**
  * Set method of UrForm
@@ -1836,10 +1895,19 @@ UrForm.prototype.getFormElement=function(){
  */
 UrForm.prototype.serialize = function(){
     var tmp = {};
-    for(i in this.formElement)
-        tmp[i] = this.formElement[i].getValue();
+    for(i in this.formElement){
+        if(this.formElement[i] instanceof Array){
+            tmp[i] = [];
+            for(var j=0; j<this.formElement[i].length; j++)
+                if(this.formElement[i][j].getElement().checked)
+                    tmp[i].push(this.formElement[i][j].getValue());
+        }
+        else
+            tmp[i] = this.formElement[i].getValue();
+    }
+
     return tmp;
-}
+};
 /**
  * Add event on submit
  * @method submit
@@ -1872,6 +1940,64 @@ var UrFragment = function(name){
 UrFragment.prototype=new UrWidget();
 UrFragment.prototype.constructor=UrFragment;
 
+/**
+ * The UrIFrame object creates an Iframe
+ * @class UrIFrame
+ * @extends UrDom
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrIFrame name
+ *      @param {UrWidget}       [settings.parent] UrIFrame's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {UrDom}          [settings.element] UrIFrame's HTML element already existing in the DOM
+ *      @param {String}         [settings.id] HTML attribute "id" of UrIFrame
+ *      @param {String}         [settings.className] HTML attribute "class" of UrIFrame
+ *      @param {Object|UrStyle} [settings.style] Style of UrIFrame
+ *      @param {String}         [settings.src] Src of UrIFrame
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var iframe = new UrIFrame({
+ *          "parent":body,
+ *          "id":"TEST",
+ *          "className":"TEST",
+ *          "style":{
+ *              "width":"100%",
+ *              "height":"100px"
+ *          }
+ *       });
+ * @constructor
+ */
+var UrIFrame = function(settings){
+    /**
+     * @property src
+     * @type String
+     * @description Src of UrIFrame
+     */
+    this.src;
+
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"src":["string"]});
+
+        settings.element = document.createElement("iframe");
+        UrDom.call(this, "UrIframe", settings);
+
+        this.setSrc(settings.src);
+    }
+};
+UrIFrame.prototype=new UrDom();
+UrIFrame.prototype.constructor=UrIFrame;
+/**
+ * Set src of UrIFrame
+ * @method setSrc
+ * @for UrIFrame
+ * @param {string} src
+ */
+UrIFrame.prototype.setSrc = function(src){
+    this.src = src;
+    if(src!=undefined)
+        this.element.src = src;
+};
 /**
  * The UrImage object provides an image widget
  * @class UrImage
@@ -1982,6 +2108,80 @@ UrImage.prototype.setHeight = function(height){
 };
 
 
+/**
+ * The UrInputCheckbox is used to construct input of type checkbox
+ * @class UrInputCheckbox
+ * @extends UrInput
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrInputCheckbox name
+ *      @param {UrWidget}       [settings.parent] UrInputCheckbox's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrInputCheckbox
+ *      @param {String}         [settings.className] HTML attribute "class" of UrInputCheckbox
+ *      @param {Object|UrStyle} [settings.style] Style of UrInputCheckbox
+ *      @param {Boolean}        [settings.enable] HTML attribute "enable" of UrInputCheckbox
+ *      @param {String}         [settings.defaultValue] Default value of UrInputCheckbox
+ *      @param {UrValidator}    [settings.validator] Validator used for UrInputCheckbox validation
+ *      @param {String}         [settings.placeholder] HTML attribute placeholder of UrInputCheckbox
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var form = new UrForm({
+ *          "parent":body
+ *      });
+ *      new UrInputCheckbox({
+ *          "name":"test-checkbox",
+ *          "defaultValue":"Test checkbox 1"
+ *      })
+ * @constructor
+ */
+var UrInputCheckbox = function(settings){
+    if(settings != undefined){
+        settings.element = document.createElement("input");
+
+        UrInput.call(this, settings, "UrInputCheckbox");
+        this.inputType = this.element.type = "checkbox";
+    }
+};
+UrInputCheckbox.prototype=new UrInput();
+UrInputCheckbox.prototype.constructor=UrInputCheckbox;
+/**
+ * The UrInputRadio is used to construct input of type radio
+ * @class UrInputRadio
+ * @extends UrInput
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrInputRadio name
+ *      @param {UrWidget}       [settings.parent] UrInputRadio's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrInputRadio
+ *      @param {String}         [settings.className] HTML attribute "class" of UrInputRadio
+ *      @param {Object|UrStyle} [settings.style] Style of UrInputRadio
+ *      @param {Boolean}        [settings.enable] HTML attribute "enable" of UrInputRadio
+ *      @param {String}         [settings.defaultValue] Default value of UrInputRadio
+ *      @param {UrValidator}    [settings.validator] Validator used for UrInputRadio validation
+ *      @param {String}         [settings.placeholder] HTML attribute placeholder of UrInputRadio
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var form = new UrForm({
+ *          "parent":body
+ *      });
+ *      form.add(new UrInputRadio({
+ *          "name":"test-radio",
+ *          "defaultValue":"Test radio 1"
+ *      }));
+ * @constructor
+ */
+var UrInputRadio = function(settings){
+    if(settings != undefined){
+        settings.element = document.createElement("input");
+
+        UrInput.call(this, settings, "UrInputRadio");
+        this.inputType = this.element.type = "radio";
+    }
+};
+UrInputRadio.prototype=new UrInput();
+UrInputRadio.prototype.constructor=UrInputRadio;
 /**
  * The UrInputText is used to construct input of type text
  * @class UrInputText
@@ -2425,6 +2625,64 @@ UrNotification.prototype.setCloseWidget=function(closeWidget){
     this.addChild(this.closeWidget);
 };
 /**
+ * The UrOption object create an option for select
+ * @class UrOption
+ * @extends UrWidget
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrOption name
+ *      @param {UrWidget}       [settings.parent] UrOption's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}         [settings.id] HTML attribute "id" of UrOption
+ *      @param {String}         [settings.className] HTML attribute "class" of UrOption
+ *      @param {Object|UrStyle} [settings.style] Style of UrOption
+ *      @param {string}         [settings.html] HTML content of UrOption
+ *      @param {String|Number}  [settings.value] Value of UrOption
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ * @constructor
+ */
+var UrOption = function(settings){
+    /**
+     * @property value
+     * @type String
+     * @description Value of UrLabel
+     */
+    this.value;
+
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"value":["string","number"]});
+
+        settings.element = document.createElement("option");
+
+        UrWidget.call(this, settings, "UrOption");
+
+        this.setValue(settings.value);
+    }
+};
+UrOption.prototype=new UrWidget();
+UrOption.prototype.constructor=UrOption;
+/**
+ * Set value of UrOption
+ * @method setValue
+ * @for UrOption
+ * @param {String|Number} value
+ */
+UrOption.prototype.setValue = function(value){
+    this.value = value;
+    if(this.value != undefined) this.element.value = this.value;
+};
+/**
+ * Get value of UrOption
+ * @method getValue
+ * @for UrOption
+ * @return {String}
+ */
+UrOption.prototype.getValue = function(){
+    return this.value;
+};
+/**
  * The UrPopup object create a popup.
  * @class UrPopup
  * @extends UrWidget
@@ -2744,6 +3002,136 @@ UrProgressBar.prototype.done = function(callback){
         that.remove();
         if(callback != undefined) callback();
     });
+};
+/**
+ * The UrSelect is used to construct a HTML select
+ * @class UrSelect
+ * @extends UrInput
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}             [settings.name] UrSelect name
+ *      @param {UrWidget}           [settings.parent] UrSelect's parent in DOM (UrWidget or specialised UrWidget)
+ *      @param {String}             [settings.id] HTML attribute "id" of UrSelect
+ *      @param {String}             [settings.className] HTML attribute "class" of UrSelect
+ *      @param {Object|UrStyle}     [settings.style] Style of UrSelect
+ *      @param {Boolean}            [settings.enable]  HTML attribute "disable" of UrSelect
+ *      @param {Array<UrOption>}    [settings.options] Options in UrSelect
+ *      @param {Boolean}            [settings.multiple] UrSelect is multiple ?
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      var form = new UrForm({
+ *          "parent":body
+ *      });
+ *      var select = new UrSelect({
+ *          "name":"test-select",
+ *          "options":[
+ *              new UrOption({
+ *                  "html":"TEST",
+ *                  "value":"test"
+ *              })
+ *          ]
+ *      });
+ * @constructor
+ */
+var UrSelect = function(settings){
+    /**
+     * @property options
+     * @type Array<UrOption>
+     * @description UrOption list in UrSelect
+     */
+    this.options;
+    /**
+     * @property multiple
+     * @type Boolean
+     * @description UrSelect is multiple ?
+     */
+    this.multiple;
+
+    if(settings!=undefined){
+        var json = new UrJson(settings);
+        json.checkType({"options":[Array],"multiple":["boolean"]});
+
+        this.options = [];
+
+        settings.element = document.createElement("select");
+        UrWidget.call(this, settings, "UrSelect");
+
+        for(var i=0;i<settings.options.length;i++)
+            this.add(settings.options[i]);
+        this.setMultiple(settings.multiple);
+    }
+};
+UrSelect.prototype=new UrWidget();
+UrSelect.prototype.constructor=UrSelect;
+/**
+ * Add UrOption in UrSelect
+ * @method add
+ * @for UrSelect
+ * @param {UrOption} option
+ */
+UrSelect.prototype.add = function(option){
+    this.options.push(option);
+    this.addChild(option);
+};
+/**
+ * Set UrSelect multiple
+ * @method setMultiple
+ * @for UrSelect
+ * @param {Boolean} multiple
+ */
+UrSelect.prototype.setMultiple = function(multiple){
+    this.multiple = multiple;
+    if(this.multiple)
+        this.element.multiple = "multiple";
+};
+/**
+ * Get UrOption list in UrSelect
+ * @method getOptions
+ * @for UrSelect
+ * @return {Array<UrOption>}
+ */
+UrSelect.prototype.getOptions = function(){
+    return this.options;
+};
+/**
+ * Get current UrOption list value in UrSelect
+ * @method getOptions
+ * @for UrSelect
+ * @return {Array<String>}
+ */
+UrSelect.prototype.getValue= function(){
+    var tmp = [];
+
+    for(var i=0;i<this.options.length;i++)
+        if(this.options[i].getElement().selected)
+            tmp.push(this.options[i].getValue());
+
+    return tmp;
+};
+/**
+ * Get current UrOption list in UrSelect
+ * @method getCurrent
+ * @for UrSelect
+ * @return {UrOption}
+ */
+UrSelect.prototype.getCurrent = function(){
+    var tmp = [];
+
+    for(var i=0;i<this.options.length;i++)
+        if(this.options[i].getElement().selected)
+            tmp.push(this.options[i]);
+
+    return tmp;
+};
+/**
+ * Get multiple attribute of UrSelect
+ * @method getMultiple
+ * @for UrSelect
+ * @return {Boolean}
+ */
+UrSelect.prototype.getMultiple = function(){
+    return this.multiple;
 };
 /**
  * The UrTab object create a tab manager.
@@ -3150,6 +3538,91 @@ UrTable.prototype.getBody = function(){ return this.body; };
  * @return {Array}
  */
 UrTable.prototype.getLines = function(){ return this.lines; };
+/**
+ * The UrTag object create a tag (text with close element).
+ * @class UrPopup
+ * @extends UrWidget
+ * @author Flavien Collomb
+ * @param {Object} settings
+ *      @param {String}         [settings.name] UrPopup name
+ *      @param {String}         [settings.id] HTML attribute "id" of UrPopup main window widget
+ *      @param {String}         [settings.className] HTML attribute "class" of UrPopup main window widget
+ *      @param {Object|UrStyle} [settings.style] Style of UrPopup main window widget
+ *      @param {UrWidget}       [settings.closeWidget] UrWidget for close UrPopup (for example UrImage with cross).
+ * @example
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      new UrTag({
+ *          "parent":body,
+ *          "html":text,
+ *          "closeWidget":new UrImage({"src":"your-link/your-image.png","style":{"float":"right","width":"5px","height":"5px"}})
+ *      });
+ * @constructor
+ */
+var UrTag=function(settings){
+    /**
+     * @property closeWidget
+     * @type UrWidget
+     * @description UrWidget close
+     */
+    this.closeWidget;
+    /**
+     * @property exist
+     * @type Boolean
+     * @description UrTag exists?
+     */
+    this.exist;
+
+    if(settings != undefined){
+        var json = new UrJson(settings);
+        json.checkType({"closeWidget":[UrDom]});
+
+        this.exist = true;
+
+        if(settings.style == undefined)
+            settings.style = {
+                "border":"1px solid gray",
+                "background":"white",
+                "float":"left"
+            };
+        UrWidget.call(this, settings, "UrTag");
+        this.setCloseWidget(settings.closeWidget);
+    }
+};
+UrTag.prototype=new UrWidget();
+UrTag.prototype.constructor=UrTag;
+/**
+ * Set UrWidget close of UrTag
+ * @method setCloseWidget
+ * @for UrTag
+ * @param {UrWidget} closeWidget
+ */
+UrTag.prototype.setCloseWidget=function(closeWidget){
+    var that = this;
+
+    if(this.closeWidgetContainer != undefined)
+        this.closeWidgetContainer.remove();
+
+    this.closeWidget = closeWidget;
+
+    if(this.closeWidget == undefined)
+        this.closeWidget = new UrWidget({
+            "parent":this,
+            "html":"x",
+            "style":{
+                "float":"right",
+                "font-weight":"bold",
+                "cursor":"pointer",
+                "margin":"-5px 2px 0 5px"
+            }
+        });
+    this.addChild(new UrWidget({"parent":this,"style":{"clear":"both"}}));
+
+    this.closeWidget.click(function(){
+        that.remove();
+        that.exist = false;
+    });
+};
 /**
  * The UrTextarea is used to construct textarea
  * @class UrTextarea
