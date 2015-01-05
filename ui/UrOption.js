@@ -1,5 +1,5 @@
 /**
- * The UrOption object create an option for select
+ * The UrOption object creates an option for UrSelect
  * @class UrOption
  * @extends UrWidget
  * @author Flavien Collomb

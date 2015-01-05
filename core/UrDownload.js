@@ -4,7 +4,7 @@
  */
 
 /**
- * The UrDownload class create an iframe to force download
+ * The UrDownload object is used to force a download
  * @class UrDownload
  * @extends UrObject
  * @author Flavien Collomb

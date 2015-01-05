@@ -316,14 +316,40 @@ UrString.prototype.toCamelCase = function(separator){
     return this.str;
 };
 /**
- * Create CamelCase text thanks a separator
- * @method toCamelCase
+ * Pad left
+ * @method lpad
  * @for UrString
- * @param {String} separator
+ * @param {Number} width
+ * @param {String} lchar
  * @return {String}
  */
-UrString.prototype.htmlEntities = function(){
-
+UrString.prototype.lpad = function(width, lchar){
+    lchar = lchar || '0';
+    this.str = this.str + '';
+    this.str = this.str.length >= width ? this.str : new Array(width - this.str.length + 1).join(lchar) + this.str;
+    return this.str;
+};
+/**
+ * UTF8 encode
+ * @method utf8Encode
+ * @for UrString
+ * @returns {String}
+ */
+UrString.prototype.utf8Encode=function(){
+    this.str = unescape(encodeURIComponent(this.str));
+    return this.str;
+};
+/**
+ * UTF8 decode
+ * @method utf8Decode
+ * @for UrString
+ * @returns {String}
+ */
+UrString.prototype.utf8Decode=function(){
+    try{
+        this.str = decodeURIComponent(escape(this.str));
+        return this.str;
+    }catch(e){ return this.str; }
 };
 /**
  * The UrJson class provides an interface for JSON
@@ -754,6 +780,13 @@ UrDom.prototype.keyDown = function(method){ this.element.onkeydown =  method; };
  */
 UrDom.prototype.keyPress = function(method){ this.element.onkeypress =  method; };
 /**
+ * Add event on change
+ * @method change
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.change = function(method){ this.element.onchange = method; };
+/**
  * The UrWidget object is the base object of all user node.
  * @class UrWidget
  * @extends UrDom
@@ -1054,13 +1087,6 @@ UrField.prototype.validate = function(){
     return true;
 };
 /**
- * Add event on change
- * @method change
- * @for UrField
- * @param {Function} method
- */
-UrField.prototype.change = function(method){ this.element.onchange = method; };
-/**
  * The UrInput object is the base object of all user form input
  * @class UrInput
  * @extends UrField
@@ -1128,6 +1154,262 @@ UrInput.prototype.setPlaceholder = function(placeholder){
  */
 UrInput.prototype.getPlaceholder = function(){
     return this.placeholder;
+};
+/**
+ * The core module contains core non-GUI functionality.
+ * @module core
+ */
+
+/**
+ * The UrDate object create a representation of date
+ * @class UrDate
+ * @extends UrObject
+ * @author Flavien Collomb
+ * @param {Date} date Javascript pure Date
+ * @param {string} [name] UrDate name
+ * @example
+ *      var date = new UrDate();
+ * @constructor
+ */
+var UrDate = function(date,name){
+    /**
+     * @property date
+     * @type Date
+     * @description Javascript pure Date
+     */
+    this.date;
+
+    if(date != undefined){
+        this.date = date;
+
+        var json = new UrJson({"date":date});
+        json.checkType({"date":[Date]});
+
+        UrObject.call(this, "UrDate", name);
+    }
+};
+UrDate.prototype=new UrObject();
+UrDate.prototype.constructor=UrDate;
+/**
+ * Get Javascript pure Date
+ * @method getDate
+ * @for UrDate
+ * @return {Date}
+ */
+UrDate.prototype.get = function(){
+    return this.date;
+};
+/**
+ * Get time
+ * @method getTime
+ * @for UrDate
+ * @return {Number}
+ */
+UrDate.prototype.getTime = function(){
+    return this.date.getTime();
+};
+/**
+ * Get day
+ * @method getDay
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getDay = function(){
+    var str = new UrString(this.date.getDate());
+    return str.lpad(2);
+};
+/**
+ * Get month
+ * @method getMonth
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getMonth = function(){
+    var str = new UrString(this.date.getMonth() + 1);
+    return str.lpad(2);
+};
+/**
+ * Get year
+ * @method getYear
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getYear = function(){
+    var str = new UrString(this.date.getFullYear());
+    return str.lpad(4);
+};
+/**
+ * Get hours
+ * @method getHours
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getHours = function(){
+    var str = new UrString(this.date.getHours());
+    return str.lpad(2);
+};
+/**
+ * Get minutes
+ * @method getMinutes
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getMinutes = function(){
+    var str = new UrString(this.date.getMinutes());
+    return str.lpad(2);
+};
+/**
+ * Get secondes
+ * @method getSeconds
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getSeconds = function(){
+    var str = new UrString(this.date.getSeconds());
+    return str.lpad(2);
+};
+/**
+ * Get date with dd/mm/yyyy format
+ * @method getFrenchDate
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getFrenchDate = function(){
+    return this.getDay() + "/" + this.getMonth() + "/" + this.getYear();
+};
+/**
+ * Get date and time with dd/mm/yyyy HH:ii:ss format
+ * @method getFrenchDateTime
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getFrenchDateTime = function(){
+    return this.getHours()+ ":" + this.getMinutes() + ":" + this.getSeconds() + " " + this.getDay() + "/" + this.getMonth() + "/" + this.getYear();
+};
+/**
+ * Get date and time with yyyymmdd format
+ * @method getEnglishDate
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getEnglishDate = function(){
+    return this.getYear() + this.getMonth() + this.getDay();
+};
+/**
+ * Get date and time with yyyymmdd HH:ii:ss format
+ * @method getEnglishDateTime
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getEnglishDateTime = function(){
+    return this.getYear() + this.getMonth() + this.getDay() + " " + this.getHours()+ ":" + this.getMinutes() + ":" + this.getSeconds();
+};
+/**
+ * Get date and time with yyyy-mm-dd format
+ * @method getSqlDate
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getSqlDate = function(){
+    return this.getYear() + "-" + this.getMonth() + "-" + this.getDay();
+};
+/**
+ * Get date and time with yyyy-mm-dd HH:ii:ss format
+ * @method getSqlDateTime
+ * @for UrDate
+ * @return {String}
+ */
+UrDate.prototype.getSqlDateTime = function(){
+    return this.getYear() + "-" + this.getMonth() + "-" + this.getDay() + " " + this.getHours()+ ":" + this.getMinutes() + ":" + this.getSeconds();
+};
+/**
+ * Add X day
+ * @method addDay
+ * @for UrDate
+ * @param {Number} add
+ * @return {UrDate}
+ */
+UrDate.prototype.addDay = function(add){
+    var result = new Date(this.date);
+    result.setDate(this.date.getDate() + add);
+    this.date = result;
+    return this;
+};
+/**
+ * Add X month
+ * @method addMonth
+ * @for UrDate
+ * @param {Number} add
+ * @return {UrDate}
+ */
+UrDate.prototype.addMonth = function(add){
+    var result = new Date(this.date);
+    result.setMonth(this.date.getMonth() + add);
+    this.date = result;
+    return this;
+};
+/**
+ * Add X year
+ * @method addYear
+ * @for UrDate
+ * @param {Number} add
+ * @return {UrDate}
+ */
+UrDate.prototype.addYear = function(add){
+    var result = new Date(this.date);
+    result.setYear(this.date.getFullYear() + add);
+    this.date = result;
+    return this;
+};
+/**
+ * Less X day
+ * @method lessDay
+ * @for UrDate
+ * @param {Number} less
+ * @return {UrDate}
+ */
+UrDate.prototype.lessDay = function(less){
+    var result = new Date(this.date);
+    result.setDate(this.date.getDate() - less);
+    this.date = result;
+    return this;
+};
+/**
+ * Less X month
+ * @method lessMonth
+ * @for UrDate
+ * @param {Number} less
+ * @return {UrDate}
+ */
+UrDate.prototype.lessMonth = function(less){
+    var result = new Date(this.date);
+    result.setMonth(this.date.getMonth() - less);
+    this.date = result;
+    return this;
+};
+/**
+ * Less X year
+ * @method lessYear
+ * @for UrDate
+ * @param {Number} less
+ * @return {UrDate}
+ */
+UrDate.prototype.lessYear = function(less){
+    var result = new Date(this.date);
+    result.setYear(this.date.getFullYear() - less);
+    this.date = result;
+    return this;
+};
+/**
+ * Get the difference in day between two UrDate
+ * @method differenceInDay
+ * @for UrDate
+ * @param {UrDate} date
+ * @return {Number}
+ */
+UrDate.prototype.differenceInDay = function(date){
+    var tmp = Math.abs(this.getTime() - date.getTime());
+    return Math.ceil(tmp / (1000 * 3600 * 24));
 };
 /**
  * The core module contains core non-GUI functionality.
@@ -3056,6 +3338,9 @@ var UrSelect = function(settings){
 
         settings.element = document.createElement("select");
         UrWidget.call(this, settings, "UrSelect");
+
+        if(settings.options == undefined)
+            settings.options = [];
 
         for(var i=0;i<settings.options.length;i++)
             this.add(settings.options[i]);

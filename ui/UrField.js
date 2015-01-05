@@ -139,10 +139,3 @@ UrField.prototype.validate = function(){
         return this.validator.validate(this.getValue());
     return true;
 };
-/**
- * Add event on change
- * @method change
- * @for UrField
- * @param {Function} method
- */
-UrField.prototype.change = function(method){ this.element.onchange = method; };

@@ -239,3 +239,10 @@ UrDom.prototype.keyDown = function(method){ this.element.onkeydown =  method; };
  * @param {Function} method
  */
 UrDom.prototype.keyPress = function(method){ this.element.onkeypress =  method; };
+/**
+ * Add event on change
+ * @method change
+ * @for UrDom
+ * @param {Function} method
+ */
+UrDom.prototype.change = function(method){ this.element.onchange = method; };

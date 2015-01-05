@@ -52,6 +52,9 @@ var UrSelect = function(settings){
         settings.element = document.createElement("select");
         UrWidget.call(this, settings, "UrSelect");
 
+        if(settings.options == undefined)
+            settings.options = [];
+
         for(var i=0;i<settings.options.length;i++)
             this.add(settings.options[i]);
         this.setMultiple(settings.multiple);

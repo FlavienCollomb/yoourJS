@@ -50,12 +50,38 @@ UrString.prototype.toCamelCase = function(separator){
     return this.str;
 };
 /**
- * Create CamelCase text thanks a separator
- * @method toCamelCase
+ * Pad left
+ * @method lpad
  * @for UrString
- * @param {String} separator
+ * @param {Number} width
+ * @param {String} lchar
  * @return {String}
  */
-UrString.prototype.htmlEntities = function(){
-
+UrString.prototype.lpad = function(width, lchar){
+    lchar = lchar || '0';
+    this.str = this.str + '';
+    this.str = this.str.length >= width ? this.str : new Array(width - this.str.length + 1).join(lchar) + this.str;
+    return this.str;
+};
+/**
+ * UTF8 encode
+ * @method utf8Encode
+ * @for UrString
+ * @returns {String}
+ */
+UrString.prototype.utf8Encode=function(){
+    this.str = unescape(encodeURIComponent(this.str));
+    return this.str;
+};
+/**
+ * UTF8 decode
+ * @method utf8Decode
+ * @for UrString
+ * @returns {String}
+ */
+UrString.prototype.utf8Decode=function(){
+    try{
+        this.str = decodeURIComponent(escape(this.str));
+        return this.str;
+    }catch(e){ return this.str; }
 };
