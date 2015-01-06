@@ -833,7 +833,13 @@ var UrWidget = function(settings, type){
     this.children;
 
     if(settings!=undefined){
-        this.children = [];
+        this.children = {};
+        /**
+         * @property children.all
+         * @type Object
+         * @description Children added in UrWidget
+         */
+        this.children["all"] = [];
         /**
          * @property children.types
          * @type Object
@@ -865,7 +871,7 @@ UrWidget.prototype.constructor=UrWidget;
  * @param {UrDom|UrWidget} object
  */
 UrWidget.prototype.addChild = function(object){
-	this.children.push(object);
+	this.children["all"].push(object);
 
     if(object.getType() != undefined){
         if(this.children["types"][object.getType()] == undefined)
@@ -905,7 +911,7 @@ UrWidget.prototype.getHtml = function(){
  * @for UrWidget
  * @return {Array}
  */
-UrWidget.prototype.getChildren = function(){ return this.children; };
+UrWidget.prototype.getChildren = function(){ return this.children["all"]; };
 /**
  * Get a child of UrWidget thanks its name
  * @method getChildByName
@@ -944,6 +950,9 @@ UrWidget.prototype.removeAllChildren = function(){
     while (this.element.firstChild)
         this.element.removeChild(this.element.firstChild);
     this.children = {};
+    this.children["all"] = [];
+    this.children["types"] = {};
+    this.children["names"] = {};
 };
 /**
  * The UrField object is the base object of all user form elements
@@ -3995,17 +4004,29 @@ UrTextarea.prototype.setCols = function(cols){
  */
 var UrTypeahead=function(settings){
     /**
-     * @property data
-     * @type {Object}
-     * @description Data of UrTypeahead.
+     * @property dataId
+     * @type Array<String>
+     * @description Ids of data
      */
-    this.data;
+    this.dataId;
     /**
      * @property dataLib
      * @type Array<String>
      * @description Libs of data
      */
     this.dataLib;
+    /**
+     * @property currentDataId
+     * @type Array<String>
+     * @description Current searched ids of data
+     */
+    this.currentDataId;
+    /**
+     * @property currentDataLib
+     * @type Array<String>
+     * @description Current searched libs of data
+     */
+    this.currentDataLib;
     /**
      * @property list
      * @type UrWidget
@@ -4049,6 +4070,7 @@ var UrTypeahead=function(settings){
 
         this.setData(settings.data);
         this.setList(this.dataId,this.dataLib);
+
         this.setListStyle(settings.styleList);
         this.setCallbackClick(settings.callbackClick);
         this.setCallbackEnter(settings.callbackEnter);
@@ -4061,7 +4083,12 @@ var UrTypeahead=function(settings){
         this.keyDown(function(e){
             if(e.keyCode == 13) {
                 e.preventDefault();
-                _this.callbackEnter(_this.getHtml());
+
+                var children = _this.list.getChildren();
+                if(_this.currentDataLib.length == 1 && _this.list.getElement().textContent == _this.currentDataLib[0])
+                    _this.callbackEnter({"id":_this.currentDataId[0],"lib":_this.currentDataLib[0]});
+                else
+                    _this.callbackEnter({"id":undefined,"lib":_this.getHtml()});
             }
             if (e.keyCode == 27 && _this.focused == true)
                 _this.getElement().blur();
@@ -4091,13 +4118,11 @@ UrTypeahead.prototype.constructor=UrTypeahead;
  * @param {Array<Object>} data
  */
 UrTypeahead.prototype.setData=function(data){
-    this.data       = {};
     this.dataId     = [];
     this.dataLib    = [];
 
     if(data != undefined){
         for(var i=0;i<data.length;i++){
-            this.data[data[i]["id"]] = data[i]["lib"];
             this.dataId.push(data[i]["id"]);
             this.dataLib.push(data[i]["lib"]);
         }
@@ -4113,12 +4138,15 @@ UrTypeahead.prototype.setData=function(data){
 UrTypeahead.prototype.setList=function(dataId,dataLib){
     var _this = this;
 
+    this.currentDataId = dataId;
+    this.currentDataLib = dataLib;
+
     if(this.list==undefined)
         this.list=new UrWidget({
             "parent":this.parent
         });
     else
-        this.list.setHtml("");
+        this.list.removeAllChildren();
 
     for(var i=0;i<dataLib.length;i++){
         (function(index){
@@ -4129,7 +4157,7 @@ UrTypeahead.prototype.setList=function(dataId,dataLib){
 
             element.click(function(){
                 _this.setHtml(dataLib[index]);
-                _this.callbackClick(dataId[index],dataLib[index]);
+                _this.callbackClick({"id":dataId[index],"lib":dataLib[index]});
                 _this.search(dataLib[index]);
             });
         }(i));
@@ -4198,6 +4226,7 @@ UrTypeahead.prototype.search=function(){
                 dataLib.push(this.dataLib[i]);
             }
         }
+
         this.setList(dataId,dataLib);
     }
 };

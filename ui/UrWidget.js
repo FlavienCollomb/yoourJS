@@ -45,7 +45,13 @@ var UrWidget = function(settings, type){
     this.children;
 
     if(settings!=undefined){
-        this.children = [];
+        this.children = {};
+        /**
+         * @property children.all
+         * @type Object
+         * @description Children added in UrWidget
+         */
+        this.children["all"] = [];
         /**
          * @property children.types
          * @type Object
@@ -77,7 +83,7 @@ UrWidget.prototype.constructor=UrWidget;
  * @param {UrDom|UrWidget} object
  */
 UrWidget.prototype.addChild = function(object){
-	this.children.push(object);
+	this.children["all"].push(object);
 
     if(object.getType() != undefined){
         if(this.children["types"][object.getType()] == undefined)
@@ -117,7 +123,7 @@ UrWidget.prototype.getHtml = function(){
  * @for UrWidget
  * @return {Array}
  */
-UrWidget.prototype.getChildren = function(){ return this.children; };
+UrWidget.prototype.getChildren = function(){ return this.children["all"]; };
 /**
  * Get a child of UrWidget thanks its name
  * @method getChildByName
@@ -156,4 +162,7 @@ UrWidget.prototype.removeAllChildren = function(){
     while (this.element.firstChild)
         this.element.removeChild(this.element.firstChild);
     this.children = {};
+    this.children["all"] = [];
+    this.children["types"] = {};
+    this.children["names"] = {};
 };
