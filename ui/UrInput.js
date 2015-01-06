@@ -62,7 +62,7 @@ UrInput.prototype.setPlaceholder = function(placeholder){
  * Return placeholder of UrInput
  * @method getPlaceholder
  * @for UrInput
- * @returns {String}
+ * @return {String}
  */
 UrInput.prototype.getPlaceholder = function(){
     return this.placeholder;

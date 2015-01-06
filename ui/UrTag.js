@@ -1,6 +1,6 @@
 /**
  * The UrTag object create a tag (text with close element).
- * @class UrPopup
+ * @class UrTag
  * @extends UrWidget
  * @author Flavien Collomb
  * @param {Object} settings

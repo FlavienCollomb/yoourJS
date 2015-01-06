@@ -67,7 +67,7 @@ UrString.prototype.lpad = function(width, lchar){
  * UTF8 encode
  * @method utf8Encode
  * @for UrString
- * @returns {String}
+ * @return {String}
  */
 UrString.prototype.utf8Encode=function(){
     this.str = unescape(encodeURIComponent(this.str));
@@ -77,7 +77,7 @@ UrString.prototype.utf8Encode=function(){
  * UTF8 decode
  * @method utf8Decode
  * @for UrString
- * @returns {String}
+ * @return {String}
  */
 UrString.prototype.utf8Decode=function(){
     try{

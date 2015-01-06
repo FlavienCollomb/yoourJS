@@ -333,7 +333,7 @@ UrString.prototype.lpad = function(width, lchar){
  * UTF8 encode
  * @method utf8Encode
  * @for UrString
- * @returns {String}
+ * @return {String}
  */
 UrString.prototype.utf8Encode=function(){
     this.str = unescape(encodeURIComponent(this.str));
@@ -343,7 +343,7 @@ UrString.prototype.utf8Encode=function(){
  * UTF8 decode
  * @method utf8Decode
  * @for UrString
- * @returns {String}
+ * @return {String}
  */
 UrString.prototype.utf8Decode=function(){
     try{
@@ -1159,7 +1159,7 @@ UrInput.prototype.setPlaceholder = function(placeholder){
  * Return placeholder of UrInput
  * @method getPlaceholder
  * @for UrInput
- * @returns {String}
+ * @return {String}
  */
 UrInput.prototype.getPlaceholder = function(){
     return this.placeholder;
@@ -2787,6 +2787,7 @@ var UrNotification=function(settings){
 
     if(settings != undefined){
         /**
+         * @property _this
          * @type {UrNotification}
          * @private
          */
@@ -3606,7 +3607,7 @@ UrTab.prototype.add=function(settings){
  * Get UrWidget tab parent
  * @method getTabParent
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getTabParent=function(){
     return this.tabParent;
@@ -3615,7 +3616,7 @@ UrTab.prototype.getTabParent=function(){
  * Get current tab index
  * @method getCurrent
  * @for UrTab
- * @returns {Number}
+ * @return {Number}
  */
 UrTab.prototype.getCurrent=function(){
     return this.current;
@@ -3624,7 +3625,7 @@ UrTab.prototype.getCurrent=function(){
  * Get current tab
  * @method getCurrentTab
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getCurrentTab=function(){
     return this.tab[this.current]["tab"];
@@ -3633,7 +3634,7 @@ UrTab.prototype.getCurrentTab=function(){
  * Get current tab content
  * @method getCurrentTabContent
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getCurrentTabContent=function(){
     return this.tab[this.current]["content"];
@@ -3642,7 +3643,7 @@ UrTab.prototype.getCurrentTabContent=function(){
  * Get current tab lib
  * @method getCurrentTabLib
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getCurrentTabLib=function(){
     return this.tab[this.current]["lib"];
@@ -3651,7 +3652,7 @@ UrTab.prototype.getCurrentTabLib=function(){
  * Get container of UrTab
  * @method getContainer
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getContainer=function(){
     return this.container;
@@ -3696,6 +3697,11 @@ UrTab.prototype.setCurrentTab=function(index){
     this.tab[index]["content"].getStyle().set("display","block");
     this.current = index;
 };
+/**
+ * Equalize width of each tab
+ * @method tryMakeEqualTabWidth
+ * @for UrTab
+ */
 UrTab.prototype.tryMakeEqualTabWidth=function(){
     for(var i=0;i<this.tab.length;i++){
         this.tab[i]["tab"].getStyle().set("margin-left","0");
@@ -3834,7 +3840,7 @@ UrTable.prototype.getBody = function(){ return this.body; };
 UrTable.prototype.getLines = function(){ return this.lines; };
 /**
  * The UrTag object create a tag (text with close element).
- * @class UrPopup
+ * @class UrTag
  * @extends UrWidget
  * @author Flavien Collomb
  * @param {Object} settings

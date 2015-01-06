@@ -70,6 +70,7 @@ var UrNotification=function(settings){
 
     if(settings != undefined){
         /**
+         * @property _this
          * @type {UrNotification}
          * @private
          */

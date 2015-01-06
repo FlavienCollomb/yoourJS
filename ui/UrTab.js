@@ -177,7 +177,7 @@ UrTab.prototype.add=function(settings){
  * Get UrWidget tab parent
  * @method getTabParent
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getTabParent=function(){
     return this.tabParent;
@@ -186,7 +186,7 @@ UrTab.prototype.getTabParent=function(){
  * Get current tab index
  * @method getCurrent
  * @for UrTab
- * @returns {Number}
+ * @return {Number}
  */
 UrTab.prototype.getCurrent=function(){
     return this.current;
@@ -195,7 +195,7 @@ UrTab.prototype.getCurrent=function(){
  * Get current tab
  * @method getCurrentTab
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getCurrentTab=function(){
     return this.tab[this.current]["tab"];
@@ -204,7 +204,7 @@ UrTab.prototype.getCurrentTab=function(){
  * Get current tab content
  * @method getCurrentTabContent
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getCurrentTabContent=function(){
     return this.tab[this.current]["content"];
@@ -213,7 +213,7 @@ UrTab.prototype.getCurrentTabContent=function(){
  * Get current tab lib
  * @method getCurrentTabLib
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getCurrentTabLib=function(){
     return this.tab[this.current]["lib"];
@@ -222,7 +222,7 @@ UrTab.prototype.getCurrentTabLib=function(){
  * Get container of UrTab
  * @method getContainer
  * @for UrTab
- * @returns {UrWidget}
+ * @return {UrWidget}
  */
 UrTab.prototype.getContainer=function(){
     return this.container;
@@ -267,6 +267,11 @@ UrTab.prototype.setCurrentTab=function(index){
     this.tab[index]["content"].getStyle().set("display","block");
     this.current = index;
 };
+/**
+ * Equalize width of each tab
+ * @method tryMakeEqualTabWidth
+ * @for UrTab
+ */
 UrTab.prototype.tryMakeEqualTabWidth=function(){
     for(var i=0;i<this.tab.length;i++){
         this.tab[i]["tab"].getStyle().set("margin-left","0");
