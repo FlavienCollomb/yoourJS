@@ -12,8 +12,15 @@
  *      @param {Array}          settings.callbackEnter Callback called when "enter" is pressed on keyboard
  *      @param {Array}          settings.callbackClick Callback called when user click on list element
  *      @param {Object|UrStyle} [settings.styleList] Style of UrTypeahead list
+ *      @param {UrWidget}       [settings.resetWidget] UrWidget to reset UrTypeahead
+ *      @param {UrWidget}       [settings.placeholder] UrWidget Placeholder of UrTypeahead
  * @example
-
+ *      var body = document.getElementsByTagName("body")[0];
+ *      body = new UrWidget({"element": body});
+ *      new UrTypeahead({
+ *          "parent":body,
+ *          "data":[{"id":1,"lib":"Test"}]
+ *      });
  * @constructor
  */
 var UrTypeahead=function(settings){
@@ -41,6 +48,18 @@ var UrTypeahead=function(settings){
      * @description Current searched libs of data
      */
     this.currentDataLib;
+    /**
+     * @property content
+     * @type UrWidget
+     * @description Content of UrTypeahead
+     */
+    this.content;
+    /**
+     * @property placeholder
+     * @type UrWidget
+     * @description Placeholder of UrTypeahead
+     */
+    this.placeholder;
     /**
      * @property list
      * @type UrWidget
@@ -76,25 +95,49 @@ var UrTypeahead=function(settings){
         if(settings.style == undefined)
             settings.style = {
                 "background":"white",
-                "border-bottom":"1px solid black",
-                "height":"25px"
+                "border":"1px solid #c9c9c9",
+                "border-bottom":"2px solid #eee",
+                "height":"20px",
+                "padding":"5px 0 0 0",
+                "overflow-y":"hidden",
+                "font-size":"16px"
             };
 
         UrWidget.call(this, settings, "UrTypeahead");
 
+        this.content = new UrWidget({"parent":this,"style":{"display":"none"}});
+        this.content.getElement().contentEditable = true;
+
+        this.content.focus(function(){
+            _this.focused = true;
+            _this.content.getStyle().set("display","block");
+            _this.resetWidget.getStyle().set("display","block");
+            _this.placeholder.getStyle().set("display","none");
+            _this.list.getStyle().set("display","block");
+        });
+        this.content.blur(function(){
+            _this.focused = false;
+
+            setTimeout(function(){
+                if(_this.content.getHtml() == ""){
+                    _this.content.getStyle().set("display","none");
+                    _this.resetWidget.getStyle().set("display","none");
+                    _this.placeholder.getStyle().set("display","block");
+                }
+
+                _this.list.getStyle().set("display","none");
+            },200);
+        });
+
+        this.setPlaceholder(settings.placeholder);
+        this.setResetWidget(settings.resetWidget);
         this.setData(settings.data);
         this.setList(this.dataId,this.dataLib);
-
         this.setListStyle(settings.styleList);
         this.setCallbackClick(settings.callbackClick);
         this.setCallbackEnter(settings.callbackEnter);
 
-        this.element.contentEditable = true;
-        this.focus(function(){
-            _this.focused = true;
-            _this.list.getStyle().set("display","block");
-        });
-        this.keyDown(function(e){
+        this.content.keyDown(function(e){
             if(e.keyCode == 13) {
                 e.preventDefault();
 
@@ -102,12 +145,12 @@ var UrTypeahead=function(settings){
                 if(_this.currentDataLib.length == 1 && _this.list.getElement().textContent == _this.currentDataLib[0])
                     _this.callbackEnter({"id":_this.currentDataId[0],"lib":_this.currentDataLib[0]});
                 else
-                    _this.callbackEnter({"id":undefined,"lib":_this.getHtml()});
+                    _this.callbackEnter({"id":undefined,"lib":_this.content.getHtml()});
             }
             if (e.keyCode == 27 && _this.focused == true)
-                _this.getElement().blur();
+                _this.content.getElement().blur();
         });
-        this.keyUp(function(e){
+        this.content.keyUp(function(e){
             if(e.keyCode == 13)
                 e.preventDefault();
             else{
@@ -115,16 +158,79 @@ var UrTypeahead=function(settings){
                 _this.search();
             }
         });
-        this.blur(function(){
-            _this.focused = false;
-            setTimeout(function(){
-                _this.list.getStyle().set("display","none");
-            },200);
-        });
     }
 };
 UrTypeahead.prototype=new UrWidget();
 UrTypeahead.prototype.constructor=UrTypeahead;
+/**
+ * Set placeholder of UrTypeahead
+ * @method setPlaceholder
+ * @for UrTypeahead
+ * @param {String} placeholder
+ */
+UrTypeahead.prototype.setPlaceholder=function(placeholder){
+    var that = this;
+
+    this.placeholder = placeholder;
+
+    if(this.placeholder == undefined)
+        this.placeholder = new UrWidget({
+            "html":"Click here",
+            "style":{
+                "background":"white",
+                "height":"20px",
+                "padding":"3px 0 0 15px",
+                "overflow-y":"hidden",
+                "font-size":"11px",
+                "color": "gray",
+                "font-style": "italic",
+                "text-align":"left"
+            }
+        });
+
+    this.addChild(this.placeholder);
+
+    this.placeholder.click(function(){
+        that.placeholder.getStyle().set("display","none");
+        that.content.getStyle().set("display","block");
+        that.resetWidget.getStyle().set("display","block");
+        that.content.getElement().focus();
+    });
+};
+/**
+ * Set UrWidget reset of UrTypeahead
+ * @method setResetWidget
+ * @for UrTypeahead
+ * @param {UrWidget} resetWidget
+ */
+UrTypeahead.prototype.setResetWidget=function(resetWidget){
+    var that = this;
+
+    this.resetWidget = resetWidget;
+
+    if(this.resetWidget == undefined)
+        this.resetWidget = new UrWidget({
+            "parent":this,
+            "html":"x",
+            "style":{
+                "position":"absolute",
+                "right":"15px",
+                "top":"5px",
+                "font-size":"25px",
+                "font-weight":"bold",
+                "cursor":"pointer",
+                "display":"none"
+            }
+        });
+    else
+        this.addChild(resetWidget);
+
+    this.addChild(new UrWidget({"parent":this,"style":{"clear":"both"}}));
+
+    this.resetWidget.click(function(){
+        that.reset();
+    });
+};
 /**
  * Set datas of UrTypeahead
  * @method setData
@@ -170,7 +276,7 @@ UrTypeahead.prototype.setList=function(dataId,dataLib){
             });
 
             element.click(function(){
-                _this.setHtml(dataLib[index]);
+                _this.content.setHtml(dataLib[index]);
                 _this.callbackClick({"id":dataId[index],"lib":dataLib[index]});
                 _this.search(dataLib[index]);
             });
@@ -189,11 +295,12 @@ UrTypeahead.prototype.setListStyle=function(style){
             "position":"absolute",
             "background":"white",
             "border":"1px solid #eee",
-            "cursor":"pointer"
+            "cursor":"pointer",
+            "padding":"0 0 0 15px"
         };
 
     this.list.setStyle(style);
-    this.list.getStyle().set("width",this.element.offsetWidth+"px");
+    this.list.getStyle().set("width",this.getElement().offsetWidth+"px");
     this.list.getStyle().set("display","none");
 };
 /**
@@ -226,13 +333,13 @@ UrTypeahead.prototype.setCallbackEnter=function(foo){
  * @for UrTypeahead
  */
 UrTypeahead.prototype.search=function(){
-    if(this.getHtml()=="")
+    if(this.content.getHtml()=="")
         this.setList(this.dataId,this.dataLib);
     else{
         var dataId = [];
         var dataLib = [];
 
-        var search = new RegExp(this.getElement().textContent.trim(),"i");
+        var search = new RegExp(this.content.getElement().textContent.trim(),"i");
 
         for(var i = 0; i < this.dataLib.length; i++){
             if(search.test(this.dataLib[i])){
@@ -252,4 +359,36 @@ UrTypeahead.prototype.search=function(){
  */
 UrTypeahead.prototype.getList=function(){
     return this.list;
+};
+/**
+ * Reset content of UrTypeahead
+ * @method reset
+ * @for UrTypeahead
+ * @param {Function} focus
+ */
+UrTypeahead.prototype.reset=function(focus){
+    this.content.setHtml("");
+
+    if(focus == true)
+        this.content.getElement().focus();
+    else{
+        this.placeholder.getStyle().set("display","block");
+        this.resetWidget.getStyle().set("display","none");
+        this.content.getStyle().set("display","none");
+    }
+
+    this.search();
+};
+/**
+ * Get current data of UrTypeahead
+ * @method getCurrentData
+ * @for UrTypeahead
+ * @param {Function} focus
+ */
+UrTypeahead.prototype.getCurrentData=function(){
+    var current = [];
+    for(var i=0;i<this.currentDataId.length;i++)
+        current.push({"id":this.currentDataId[i],"lib":this.currentDataLib[i]});
+
+    return current;
 };
