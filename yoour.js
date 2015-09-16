@@ -4053,6 +4053,18 @@ var UrTypeahead=function(settings){
      */
     this.content;
     /**
+     * @property valueWidget
+     * @type UrWidget
+     * @description Value widget of UrTypeahead
+     */
+    this.valueWidget;
+    /**
+     * @property resetWidget
+     * @type UrWidget
+     * @description Reset widget of UrTypeahead
+     */
+    this.resetWidget;
+    /**
      * @property placeholder
      * @type UrWidget
      * @description Placeholder of UrTypeahead
@@ -4103,29 +4115,9 @@ var UrTypeahead=function(settings){
 
         UrWidget.call(this, settings, "UrTypeahead");
 
-        this.content = new UrWidget({"parent":this,"style":{"display":"none"}});
-        this.content.getElement().contentEditable = true;
+        this.setPlaceholder(settings.placeholder);
 
-        this.content.focus(function(){
-            _this.focused = true;
-            _this.content.getStyle().set("display","block");
-            _this.resetWidget.getStyle().set("display","block");
-            _this.placeholder.getStyle().set("display","none");
-            _this.list.getStyle().set("display","block");
-        });
-        this.content.blur(function(){
-            _this.focused = false;
-
-            setTimeout(function(){
-                if(_this.content.getHtml() == ""){
-                    _this.content.getStyle().set("display","none");
-                    _this.resetWidget.getStyle().set("display","none");
-                    _this.placeholder.getStyle().set("display","block");
-                }
-
-                _this.list.getStyle().set("display","none");
-            },200);
-        });
+        this.setContent(settings.resetWidget);
 
         this.setPlaceholder(settings.placeholder);
         this.setResetWidget(settings.resetWidget);
@@ -4134,32 +4126,67 @@ var UrTypeahead=function(settings){
         this.setListStyle(settings.styleList);
         this.setCallbackClick(settings.callbackClick);
         this.setCallbackEnter(settings.callbackEnter);
-
-        this.content.keyDown(function(e){
-            if(e.keyCode == 13) {
-                e.preventDefault();
-
-                var children = _this.list.getChildren();
-                if(_this.currentDataLib.length == 1 && _this.list.getElement().textContent == _this.currentDataLib[0])
-                    _this.callbackEnter({"id":_this.currentDataId[0],"lib":_this.currentDataLib[0]});
-                else
-                    _this.callbackEnter({"id":undefined,"lib":_this.content.getHtml()});
-            }
-            if (e.keyCode == 27 && _this.focused == true)
-                _this.content.getElement().blur();
-        });
-        this.content.keyUp(function(e){
-            if(e.keyCode == 13)
-                e.preventDefault();
-            else{
-                _this.list.getStyle().set("display","block");
-                _this.search();
-            }
-        });
     }
 };
 UrTypeahead.prototype=new UrWidget();
 UrTypeahead.prototype.constructor=UrTypeahead;
+/**
+ * Set content of UrTypeahead
+ * @method setContent
+ * @for UrTypeahead
+ * @param {Object|UrStyle} style
+ * @param {UrWidget} resetWidget
+ */
+UrTypeahead.prototype.setContent=function(resetWidget){
+    var that = this;
+
+    this.content        = new UrWidget({"parent":this,"style":{"display":"none"}});
+
+    this.valueWidget    = new UrWidget({"parent":this.content,"style":{"width":"95%","float":"left"}});
+    this.valueWidget.getElement().contentEditable = true;
+
+    this.valueWidget.focus(function(){
+        that.focused = true;
+        that.content.getStyle().set("display","block");
+        that.placeholder.getStyle().set("display","none");
+        that.list.getStyle().set("display","block");
+    });
+    this.valueWidget.blur(function(){
+        that.focused = false;
+
+        setTimeout(function(){
+            if(that.valueWidget.getHtml() == ""){
+                that.content.getStyle().set("display","none");
+                that.placeholder.getStyle().set("display","block");
+            }
+
+            that.list.getStyle().set("display","none");
+        },200);
+    });
+
+    this.valueWidget.keyDown(function(e){
+        if(e.keyCode == 13) {
+            e.preventDefault();
+
+            if(that.currentDataLib.length == 1 && that.list.getElement().textContent == that.currentDataLib[0])
+                that.callbackEnter({"id":that.currentDataId[0],"lib":that.currentDataLib[0]});
+            else
+                that.callbackEnter({"id":undefined,"lib":that.content.getHtml()});
+        }
+        if (e.keyCode == 27 && that.focused == true)
+            that.content.getElement().blur();
+    });
+    this.valueWidget.keyUp(function(e){
+        if(e.keyCode == 13)
+            e.preventDefault();
+        else{
+            that.list.getStyle().set("display","block");
+            that.search();
+        }
+    });
+
+    this.setResetWidget(resetWidget);
+};
 /**
  * Set placeholder of UrTypeahead
  * @method setPlaceholder
@@ -4177,7 +4204,7 @@ UrTypeahead.prototype.setPlaceholder=function(placeholder){
             "style":{
                 "background":"white",
                 "height":"20px",
-                "padding":"3px 0 0 15px",
+                "padding":"0 0 0 15px",
                 "overflow-y":"hidden",
                 "font-size":"11px",
                 "color": "gray",
@@ -4191,8 +4218,7 @@ UrTypeahead.prototype.setPlaceholder=function(placeholder){
     this.placeholder.click(function(){
         that.placeholder.getStyle().set("display","none");
         that.content.getStyle().set("display","block");
-        that.resetWidget.getStyle().set("display","block");
-        that.content.getElement().focus();
+        that.valueWidget.getElement().focus();
     });
 };
 /**
@@ -4204,24 +4230,25 @@ UrTypeahead.prototype.setPlaceholder=function(placeholder){
 UrTypeahead.prototype.setResetWidget=function(resetWidget){
     var that = this;
 
+    if(this.resetWidget != undefined)
+        this.resetWidget.remove();
+
     this.resetWidget = resetWidget;
 
     if(this.resetWidget == undefined)
         this.resetWidget = new UrWidget({
-            "parent":this,
+            "parent":this.content,
             "html":"x",
             "style":{
-                "position":"absolute",
-                "right":"15px",
-                "top":"5px",
-                "font-size":"25px",
+                "width":"3%",
                 "font-weight":"bold",
                 "cursor":"pointer",
-                "display":"none"
+                "text-align":"right",
+                "float":"left"
             }
         });
     else
-        this.addChild(resetWidget);
+        this.content.addChild(resetWidget);
 
     this.addChild(new UrWidget({"parent":this,"style":{"clear":"both"}}));
 
@@ -4274,7 +4301,7 @@ UrTypeahead.prototype.setList=function(dataId,dataLib){
             });
 
             element.click(function(){
-                _this.content.setHtml(dataLib[index]);
+                _this.valueWidget.setHtml(dataLib[index]);
                 _this.callbackClick({"id":dataId[index],"lib":dataLib[index]});
                 _this.search(dataLib[index]);
             });
@@ -4331,13 +4358,13 @@ UrTypeahead.prototype.setCallbackEnter=function(foo){
  * @for UrTypeahead
  */
 UrTypeahead.prototype.search=function(){
-    if(this.content.getHtml()=="")
+    if(this.valueWidget.getHtml()=="")
         this.setList(this.dataId,this.dataLib);
     else{
         var dataId = [];
         var dataLib = [];
 
-        var search = new RegExp(this.content.getElement().textContent.trim(),"i");
+        var search = new RegExp(this.valueWidget.getElement().textContent.trim(),"i");
 
         for(var i = 0; i < this.dataLib.length; i++){
             if(search.test(this.dataLib[i])){
@@ -4365,13 +4392,12 @@ UrTypeahead.prototype.getList=function(){
  * @param {Function} focus
  */
 UrTypeahead.prototype.reset=function(focus){
-    this.content.setHtml("");
+    this.valueWidget.setHtml("");
 
     if(focus == true)
-        this.content.getElement().focus();
+        this.valueWidget.getElement().focus();
     else{
         this.placeholder.getStyle().set("display","block");
-        this.resetWidget.getStyle().set("display","none");
         this.content.getStyle().set("display","none");
     }
 
@@ -4389,4 +4415,12 @@ UrTypeahead.prototype.getCurrentData=function(){
         current.push({"id":this.currentDataId[i],"lib":this.currentDataLib[i]});
 
     return current;
+};
+/**
+ * Get current valueof UrTypeahead
+ * @method getValue
+ * @for UrTypeahead
+ */
+UrTypeahead.prototype.getValue=function(){
+    return this.valueWidget.getElement().textContent.trim();
 };
