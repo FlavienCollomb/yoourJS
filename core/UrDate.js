@@ -254,3 +254,15 @@ UrDate.prototype.differenceInDay = function(date){
     var tmp = Math.abs(this.getTime() - date.getTime());
     return Math.ceil(tmp / (1000 * 3600 * 24));
 };
+/**
+ * Get the current week number in year
+ * @method getWeekNumber
+ * @for UrDate
+ * @return {Number}
+ */
+UrDate.prototype.getWeekNumber = function(){
+    var date = new Date(this.date);
+    date.setHours(0,0,0);
+    date.setDate(date.getDate()+4-(date.getDay()||7));
+    return Math.ceil((((date-new Date(date.getFullYear(),0,1))/8.64e7)+1)/7);
+};
