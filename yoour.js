@@ -2738,7 +2738,7 @@ UrLink.prototype.getTarget = function(){
 };
 /**
  * The UrMonthCalendar object create a month calendar.
- * @class UrPopup
+ * @class UrMonthCalendar
  * @extends UrWidget
  * @author Flavien Collomb
  * @param {Object} settings
@@ -2753,12 +2753,12 @@ UrLink.prototype.getTarget = function(){
  *      @param {Object|UrStyle} [settings.styleCell] Style of the other cells
  *      @param {Array<String>} [settings.libs] Libs of the days
  * @example
- *      var body = document.getElementsByTagName("body")[0];
- *      body = new UrWidget({"element": body});
+ * var body = document.getElementsByTagName("body")[0];
+ * body = new UrWidget({"element": body});
  *
- *      var popup = new UrMonthCalendar({
- *          "parent":body
- *       });
+ * var popup = new UrMonthCalendar({
+ *    "parent":body
+ * });
  * @constructor
  */
 var UrMonthCalendar=function(settings){
