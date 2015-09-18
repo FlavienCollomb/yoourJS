@@ -8,18 +8,18 @@
  *      @param {string} [settings.name] UrNavigation name
  * @constructor
  * @example
- *      var navigation = new UrNavigation({
- *          "defaultAction":function(){
- *              console.log("Default action!");
- *          }
- *      });
- *      navigation.add({
- *          "anchor":"#link1",
- *          "action":function(){
- *              console.log("Action called on anchor #link1!");
- *          }
- *      });
- *      navigation.load();
+ * var navigation = new UrNavigation({
+ *     "defaultAction":function(){
+ *         console.log("Default action!");
+ *     }
+ * });
+ * navigation.add({
+ *     "anchor":"#link1",
+ *     "action":function(){
+ *         console.log("Action called on anchor #link1!");
+ *     }
+ * });
+ * navigation.load();
  */
 var UrNavigation=function(settings){
     if(settings == undefined) settings = {};
@@ -38,7 +38,9 @@ var UrNavigation=function(settings){
     this.defaultAction;
 
     this.setDefaultAction(settings.defaultAction);
-    this.current = window.location.hash;
+
+    this.setCurrent();
+
     /**
      * @property _that
      * @type {UrNavigation}
@@ -52,6 +54,14 @@ var UrNavigation=function(settings){
 };
 UrNavigation.prototype=new UrObject();
 UrNavigation.prototype.constructor=UrNavigation;
+/**
+ * Set current anchor without parameter(s) in URL
+ * @method setCurrent
+ * @for UrNavigation
+*/
+UrNavigation.prototype.setCurrent=function(){
+    this.current = window.location.hash.split("?")[0];
+};
 /**
  * Set default action
  * @method setDefaultAction
@@ -82,8 +92,7 @@ UrNavigation.prototype.add=function(settings){
  * @for UrNavigation
  */
 UrNavigation.prototype.load=function(){
-    this.current = window.location.hash;
-
+    this.setCurrent();
     if(this.anchor[this.current] != undefined)
         this.anchor[this.current](this.current);
     else
