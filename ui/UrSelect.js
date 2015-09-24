@@ -13,20 +13,21 @@
  *      @param {Array<UrOption>}    [settings.options] Options in UrSelect
  *      @param {Boolean}            [settings.multiple] UrSelect is multiple ?
  * @example
- *      var body = document.getElementsByTagName("body")[0];
- *      body = new UrWidget({"element": body});
- *      var form = new UrForm({
- *          "parent":body
- *      });
- *      var select = new UrSelect({
- *          "name":"test-select",
- *          "options":[
- *              new UrOption({
- *                  "html":"TEST",
- *                  "value":"test"
- *              })
- *          ]
- *      });
+ *  var body = document.getElementsByTagName("body")[0];
+ *   body = new UrWidget({"element": body});
+ *  var form = new UrForm({
+ *      "parent":body
+ *  });
+ *  var select = new UrSelect({
+ *      "name":"test-select",
+ *      "parent":form,
+ *      "options":[
+ *          new UrOption({
+ *              "html":"TEST",
+ *              "value":"test"
+ *          })
+ *      ]
+ *  });
  * @constructor
  */
 var UrSelect = function(settings){
@@ -94,7 +95,7 @@ UrSelect.prototype.getOptions = function(){
 };
 /**
  * Get current UrOption list value in UrSelect
- * @method getOptions
+ * @method getValue
  * @for UrSelect
  * @return {Array<String>}
  */
@@ -130,4 +131,13 @@ UrSelect.prototype.getCurrent = function(){
  */
 UrSelect.prototype.getMultiple = function(){
     return this.multiple;
+};
+/**
+ * Set current value of UrSelect
+ * @method setValue
+ * @for UrSelect
+ * @param {String} value
+ */
+UrSelect.prototype.setValue = function(value){
+    this.element.value = value;
 };
