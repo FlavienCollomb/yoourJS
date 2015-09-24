@@ -95,6 +95,13 @@ UrPopup.prototype.setBg=function(){
  */
 UrPopup.prototype.getBg=function(){ return this.bg; };
 /**
+ * Get content of UrPopup
+ * @method geContent
+ * @for UrPopup
+ * @return {UrWidget}
+ */
+UrPopup.prototype.geContent=function(){ return this.content; };
+/**
  * Set UrWidget close of UrPopup
  * @method setCloseWidget
  * @for UrPopup
