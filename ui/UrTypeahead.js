@@ -419,10 +419,18 @@ UrTypeahead.prototype.getCurrentData=function(){
     return current;
 };
 /**
- * Get current valueof UrTypeahead
+ * Get current value of UrTypeahead
  * @method getValue
  * @for UrTypeahead
  */
 UrTypeahead.prototype.getValue=function(){
     return this.valueWidget.getElement().textContent.trim();
+};
+/**
+ * Get placeholder widget of UrTypeahead
+ * @method getPlaceholder
+ * @for UrTypeahead
+ */
+UrTypeahead.prototype.getPlaceholder=function(){
+    return this.placeholder;
 };
