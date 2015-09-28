@@ -118,10 +118,7 @@ var UrTypeahead=function(settings){
         UrWidget.call(this, settings, "UrTypeahead");
 
         this.setPlaceholder(settings.placeholder);
-
         this.setContent(settings.resetWidget);
-
-        this.setPlaceholder(settings.placeholder);
         this.setResetWidget(settings.resetWidget);
         this.setData(settings.data);
         this.setList(this.dataId,this.dataLib);
@@ -391,7 +388,7 @@ UrTypeahead.prototype.getList=function(){
  * Reset content of UrTypeahead
  * @method reset
  * @for UrTypeahead
- * @param {Function} focus
+ * @param {Boolean} focus
  */
 UrTypeahead.prototype.reset=function(focus){
     this.valueWidget.setHtml("");
@@ -409,7 +406,6 @@ UrTypeahead.prototype.reset=function(focus){
  * Get current data of UrTypeahead
  * @method getCurrentData
  * @for UrTypeahead
- * @param {Function} focus
  */
 UrTypeahead.prototype.getCurrentData=function(){
     var current = [];
@@ -433,4 +429,17 @@ UrTypeahead.prototype.getValue=function(){
  */
 UrTypeahead.prototype.getPlaceholder=function(){
     return this.placeholder;
+};
+/**
+ * Set current value for UrTypeahead
+ * @method setCurrent
+ * @for UrTypeahead
+ * @param {String} text
+ */
+UrTypeahead.prototype.setCurrent=function(text){
+    var that = this;
+    if(this.placeholder != undefined)
+        that.placeholder.getStyle().set("display","none");
+    this.content.getStyle().set("display","block");
+    this.valueWidget.setHtml(text);
 };
