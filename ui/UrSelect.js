@@ -74,6 +74,27 @@ UrSelect.prototype.add = function(option){
     this.addChild(option);
 };
 /**
+ * Remove UrOption in UrSelect by value
+ * @method removeByValue
+ * @for UrSelect
+ * @param {String} value
+ */
+UrSelect.prototype.removeByValue = function(value){
+    var options = [];
+    var optionToRemove;
+
+    for(var i=0;i<this.options.length;i++){
+        if(this.options[i].getValue() == value)
+            optionToRemove = this.options[i];
+        else
+            options.push(this.options[i]);
+    }
+
+    this.options = options;
+    if(optionToRemove!=undefined)
+        optionToRemove.remove();
+};
+/**
  * Set UrSelect multiple
  * @method setMultiple
  * @for UrSelect
