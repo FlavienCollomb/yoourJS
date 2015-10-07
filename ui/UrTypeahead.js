@@ -415,6 +415,28 @@ UrTypeahead.prototype.getCurrentData=function(){
     return current;
 };
 /**
+ * Get current data of UrTypeahead
+ * @method getCurrent
+ * @for UrTypeahead
+ */
+UrTypeahead.prototype.getCurrent=function(){
+    if(this.currentDataLib.length == 1 && this.list.getElement().innerText == this.currentDataLib[0])
+        return {"id":this.currentDataId[0],"lib":this.currentDataLib[0]};
+    else{
+        var result = undefined;
+        var find = false;
+        var i = 0;
+        while(find == false && i < this.currentDataId.length){
+            if(this.valueWidget.getElement().innerText == this.currentDataLib[i]){
+                result =  {"id":this.currentDataId[i],"lib":this.currentDataLib[i]};
+                find = true;
+            }
+            i++;
+        }
+        return result;
+    }
+};
+/**
  * Get current value of UrTypeahead
  * @method getValue
  * @for UrTypeahead
