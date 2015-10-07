@@ -64,6 +64,9 @@ var UrPopup=function(settings){
         this.body = new UrWidget({"element": body});
         settings.parent = this.body;
 
+        this.initialYScroll = window.pageYOffset;
+        window.scrollTo(0,0);
+
         this.setBg();
         UrWidget.call(this, settings, "UrPopup");
         this.setCloseWidget(settings.closeWidget);
@@ -120,8 +123,7 @@ UrPopup.prototype.setCloseWidget=function(closeWidget){
         this.closeWidgetContainer.addChild(new UrWidget({"parent":this.closeWidgetContainer,"style":{"clear":"both"}}));
 
         this.closeWidget.click(function(){
-            that.bg.remove();
-            that.remove();
+            that.close();
         });
     }
 };
@@ -143,8 +145,7 @@ UrPopup.prototype.setModal=function(modal){
     else{
         if(this.bg != undefined){
             this.bg.click(function(){
-                that.bg.remove();
-                that.remove();
+                that.close();
             });
         }
     }
@@ -170,6 +171,7 @@ UrPopup.prototype.setContent=function(content){
  * @for UrPopup
  */
 UrPopup.prototype.close=function(){
+    window.scrollTo(0,this.initialYScroll);
     this.bg.remove();
     this.remove();
 };
