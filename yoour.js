@@ -2863,7 +2863,8 @@ UrMonthCalendar.prototype.setDate=function(date){
 UrMonthCalendar.prototype.setStyleRowHead=function(style){
     if(style == undefined){
         style = {
-            "float":"left",
+            "styleFloat":"left",
+            "cssFloat":"left",
             "width":"100%",
             "background":"#f6f6f6",
             "box-shadow": "inset 0 1px 0 rgba(255,255,255,0.2)",
@@ -2883,14 +2884,15 @@ UrMonthCalendar.prototype.setStyleRowHead=function(style){
 UrMonthCalendar.prototype.setStyleCellHead=function(style){
     if(style == undefined){
         style = {
-            "float":"left",
+            "styleFloat":"left",
+            "cssFloat":"left",
             "color": "black",
             "font-weight": "300",
             "text-transform": "uppercase",
             "font-size": "14px",
             "letter-spacing": "3px",
             "text-shadow": "0 1px 1px rgba(0,0,0,0.4)",
-            "width": "14.2%",
+            "width": "14%",
             "text-align":"center"
         }
     }
@@ -2905,7 +2907,8 @@ UrMonthCalendar.prototype.setStyleCellHead=function(style){
 UrMonthCalendar.prototype.setStyleRow=function(style){
     if(style == undefined){
         style = {
-            "float":"left",
+            "styleFloat":"left",
+            "cssFloat":"left",
             "width":"100%"
         }
     }
@@ -2920,10 +2923,12 @@ UrMonthCalendar.prototype.setStyleRow=function(style){
 UrMonthCalendar.prototype.setStyleCell=function(style){
     if(style == undefined){
         style = {
-            "float":"left",
-            "border":"1px solid lightgray",
+            "styleFloat":"left",
+            "cssFloat":"left",
             "cursor": "pointer",
-            "width": "14%",
+            "width": "12%",
+            "padding":"1%",
+            "box-shadow": "inset 0 0 1px lightgray",
             "height":"100px"
         }
     }
