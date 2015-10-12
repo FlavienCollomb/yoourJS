@@ -104,5 +104,8 @@ UrJson.prototype.checkType = function(jsonControl){
 
     if(error == "")
         return true;
-    throw new TypeError(error);
+    try{
+        throw new TypeError(error);
+    }
+    catch(e){}
 };
