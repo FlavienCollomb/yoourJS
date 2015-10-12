@@ -457,7 +457,10 @@ UrJson.prototype.checkType = function(jsonControl){
 
     if(error == "")
         return true;
-    throw new TypeError(error);
+    try{
+        throw new TypeError(error);
+    }
+    catch(e){}
 };
 /**
  * The UrStyle class is the base class that encapsulates the look and feel of one UrDom
@@ -4520,20 +4523,22 @@ UrTypeahead.prototype.setContent=function(resetWidget){
     });
 
     this.valueWidget.keyDown(function(e){
-        if(e.keyCode == 13) {
-            e.preventDefault();
+        var evt = e || window.event;
+        if(evt.keyCode == 13) {
+            evt.preventDefault();
 
             if(that.currentDataLib.length == 1 && that.list.getElement().textContent == that.currentDataLib[0])
                 that.callbackEnter({"id":that.currentDataId[0],"lib":that.currentDataLib[0]});
             else
                 that.callbackEnter({"id":undefined,"lib":that.content.getHtml()});
         }
-        if (e.keyCode == 27 && that.focused == true)
+        if (evt.keyCode == 27 && that.focused == true)
             that.content.getElement().blur();
     });
     this.valueWidget.keyUp(function(e){
-        if(e.keyCode == 13)
-            e.preventDefault();
+        var evt = e || window.event;
+        if(evt.keyCode == 13)
+            evt.preventDefault();
         else{
             that.list.getStyle().set("display","block");
             that.search();
