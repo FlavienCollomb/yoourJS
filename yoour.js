@@ -593,7 +593,7 @@ var UrDom = function(type, settings){
 
     if(settings!=undefined){
         var json = new UrJson(settings);
-        json.checkType({"name":["string"],"parent":[UrWidget],"element":[Node],"id":["string"],"className":["string"],"style":[Object,UrStyle]});
+        json.checkType({"name":["string"],"parent":[UrWidget],"element":[Element],"id":["string"],"className":["string"],"style":[Object,UrStyle]});
 
         UrObject.call(this, type, settings.name);
 
@@ -2226,7 +2226,9 @@ UrForm.prototype.serialize = function(){
  * @for UrForm
  * @param {Function} method
  */
-UrForm.prototype.submit = function(method){ this.element.onsubmit = method; };
+UrForm.prototype.submit = function(method){
+    this.element.onsubmit = method;
+};
 /**
  * The UrFragment object is used to construct DocumentFragment
  * @class UrFragment
