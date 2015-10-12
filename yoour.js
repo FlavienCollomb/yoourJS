@@ -4500,7 +4500,14 @@ UrTypeahead.prototype.setContent=function(resetWidget){
 
     this.content        = new UrWidget({"parent":this,"style":{"display":"none"}});
 
-    this.valueWidget    = new UrWidget({"parent":this.content,"style":{"width":"95%","float":"left"}});
+    this.valueWidget    = new UrWidget({
+        "parent":this.content,
+        "style":{
+            "width":"95%",
+            "styleFloat":"left",
+            "cssFloat":"left"
+        }
+    });
     this.valueWidget.getElement().contentEditable = true;
 
     this.valueWidget.focus(function(){
@@ -4527,7 +4534,8 @@ UrTypeahead.prototype.setContent=function(resetWidget){
         if(evt.keyCode == 13) {
             evt.preventDefault();
 
-            if(that.currentDataLib.length == 1 && that.list.getElement().textContent == that.currentDataLib[0])
+            var text  = that.list.getElement().textContent || that.list.getElement().innerText;
+            if(that.currentDataLib.length == 1 && text == that.currentDataLib[0])
                 that.callbackEnter({"id":that.currentDataId[0],"lib":that.currentDataLib[0]});
             else
                 that.callbackEnter({"id":undefined,"lib":that.content.getHtml()});
@@ -4604,7 +4612,8 @@ UrTypeahead.prototype.setResetWidget=function(resetWidget){
                 "font-weight":"bold",
                 "cursor":"pointer",
                 "text-align":"right",
-                "float":"left"
+                "styleFloat":"left",
+                "cssFloat":"left"
             }
         });
     else
@@ -4724,7 +4733,8 @@ UrTypeahead.prototype.search=function(){
         var dataId = [];
         var dataLib = [];
 
-        var search = new RegExp(this.valueWidget.getElement().textContent.trim(),"i");
+        var text = this.valueWidget.getElement().textContent ||this.valueWidget.getElement().innerText;
+        var search = new RegExp(text.replace(/^\s+|\s+$/g, ''),"i");
 
         for(var i = 0; i < this.dataLib.length; i++){
             if(search.test(this.dataLib[i])){
@@ -4803,7 +4813,8 @@ UrTypeahead.prototype.getCurrent=function(){
  * @for UrTypeahead
  */
 UrTypeahead.prototype.getValue=function(){
-    return this.valueWidget.getElement().textContent.trim();
+    var text = this.valueWidget.getElement().textContent || this.valueWidget.getElement().innerText;
+    return text.replace(/^\s+|\s+$/g, '');
 };
 /**
  * Get placeholder widget of UrTypeahead
